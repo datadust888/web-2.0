@@ -1,0 +1,16 @@
+body {margin:0; background:black; color:white; font-family:Arial;}
+body::before {
+  content:"";
+  position:fixed; inset:0;
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size:30px 30px;
+  pointer-events:none;
+}
+.app {padding:20px;}
+.profile {display:flex; align-items:center; gap:12px;}
+.profile img {width:64px; height:64px; border-radius:50%;}
+.tiles button {
+  margin:6px; padding:12px; background:rgba(255,255,255,0.1); border:none;
+  border-radius:8px; color:white; cursor:pointer;
+}
+#live-drop {margin:12px 0; padding:8px; background:rgba(255,255,255,0.05);}
