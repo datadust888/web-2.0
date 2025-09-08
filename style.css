@@ -1,43 +1,23 @@
-/* Базовые стили */
+/* Базовый фон */
 body {
   margin: 0;
   padding: 0;
   height: 100vh;
-  overflow: hidden;
   background: black;
   color: white;
   font-family: sans-serif;
   text-align: center;
 }
 
-/* Фоновые звёзды */
+/* Фон */
 #background {
   position: fixed;
   top: 0;
   left: 0;
-  width: 110%;
-  height: 110%;
-  background: url("/static/stars.jpg") repeat; /* путь к картинке */
-  background-size: cover;
+  width: 100%;
+  height: 100%;
+  background: black; /* просто черный фон */
   z-index: -1;
-  pointer-events: none;
-  animation: moveStars 60s linear infinite;
-}
-
-/* Анимация движения фона */
-@keyframes moveStars {
-  from { background-position: 0 0; }
-  to { background-position: -1000px 1000px; }
-}
-
-/* Маленькие прозрачные звёзды */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 30px 30px;
-  pointer-events: none;
 }
 
 /* Контент */
@@ -56,6 +36,7 @@ body::before {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .tiles button:hover { background: rgba(255,255,255,0.2); }
 
 #live-drop {
