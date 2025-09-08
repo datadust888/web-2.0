@@ -32,7 +32,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: 0;
   background: rgba(0,0,0,0); /* прозрачный фон */
 }
 
@@ -80,9 +79,18 @@ body {
   font-weight: bold;
   font-size: 1.2em;
 }
-.bottom-bar-text div {
+.bottom-bar-text .bottom-item {
   flex: 1;
   text-align: center;
+  cursor: pointer;
+  padding: 10px 0;
+  transition: color 0.2s, transform 0.2s;
 }
-.bottom-bar-text div:first-child { text-align: left; }
-.bottom-bar-text div:last-child { text-align: right; }
+.bottom-bar-text .bottom-item:first-child { text-align: left; }
+.bottom-bar-text .bottom-item:last-child { text-align: right; }
+
+/* Эффект при нажатии */
+.bottom-bar-text .bottom-item:active {
+  color: #ffd700;
+  transform: scale(1.1);
+}
