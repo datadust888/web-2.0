@@ -1,20 +1,27 @@
-// Проверяем Telegram WebApp
+// Telegram WebApp
 const tg = window.Telegram?.WebApp;
 if (tg) tg.expand();
 
-// Элементы DOM
+// DOM элементы
 const nameEl = document.getElementById("name");
+const avatarEl = document.getElementById("avatar");
 const balanceEl = document.getElementById("balance");
 const liveDrop = document.getElementById("live-drop");
 const result = document.getElementById("result");
 const background = document.getElementById("background");
 
-// Устанавливаем имя пользователя
+// Пользователь
 const user = tg?.initDataUnsafe?.user;
 const userId = user?.id || 0;
-nameEl.innerText = "Привет, " + (user?.first_name || "Гость");
 
-// Заглушки для кнопок
+// Устанавливаем имя, аватар и баланс
+if (user) {
+  nameEl.innerText = user.first_name;
+  if (user.photo_url) avatarEl.src = user.photo_url;
+}
+balanceEl.innerText = "0 ⭐️"; // Можно обновлять через API
+
+// Кнопки
 document.getElementById("btn-open").onclick = () => {
   result.innerText = "Кейс открыт!";
   liveDrop.innerText = "Последний дроп: ⭐️";
@@ -33,7 +40,7 @@ document.getElementById("btn-ref").onclick = () => {
   }
 };
 
-// Параллакс фона (по желанию)
+// Параллакс фона
 if (background) {
   document.addEventListener("mousemove", (event) => {
     const x = (event.clientX / window.innerWidth - 0.5) * 20;

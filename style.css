@@ -1,4 +1,3 @@
-/* Базовый фон */
 body {
   margin: 0;
   padding: 0;
@@ -10,12 +9,10 @@ body {
   justify-content: center;
   align-items: center;
 
-  /* Фон */
   background: url("stars.jpg") no-repeat center center fixed;
   background-size: cover;
 }
 
-/* Фоновой блок для параллакса (если захотим позже) */
 #background {
   position: fixed;
   top: 0;
@@ -26,7 +23,7 @@ body {
   transition: transform 0.1s linear;
 }
 
-/* Контейнер приложения в формате 9:16 */
+/* Контейнер 9:16 */
 .app {
   max-width: 360px;
   width: 100%;
@@ -36,37 +33,32 @@ body {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
   border-radius: 12px;
 }
 
-/* Профиль */
+/* Верхняя панель */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Профиль слева */
 .profile {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
 }
 .profile img {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
 }
 
-/* Кнопки */
-.tiles button {
-  margin: 6px 0;
-  padding: 12px;
-  width: 100%;
-  background: rgba(255,255,255,0.1);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.tiles button:hover {
-  background: rgba(255,255,255,0.2);
+/* Баланс справа */
+#balance {
+  font-weight: bold;
 }
 
 /* Live drop */
@@ -74,4 +66,31 @@ body {
   margin: 12px 0;
   padding: 8px;
   background: rgba(255,255,255,0.05);
+}
+
+/* Результат */
+#result {
+  white-space: pre-wrap;
+  margin-top: 10px;
+}
+
+/* Нижняя панель с кнопками */
+.bottom-bar {
+  display: flex;
+  justify-content: space-around;
+  margin-top: auto;
+}
+.bottom-bar button {
+  padding: 12px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  flex: 1;
+  margin: 0 4px;
+  transition: background 0.2s;
+}
+.bottom-bar button:hover {
+  background: rgba(255,255,255,0.2);
 }

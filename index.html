@@ -13,23 +13,27 @@
 
   <!-- Контент -->
   <div class="app">
-    <div class="profile">
-      <img id="avatar" src="default-avatar.png" alt="Avatar"/>
-      <div class="info">
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+      <div class="profile">
+        <img id="avatar" src="default-avatar.png" alt="Avatar"/>
         <div id="name">Guest</div>
-        <div id="balance">0 ⭐️</div>
       </div>
+      <div id="balance">0 ⭐️</div>
     </div>
 
+    <!-- Live drop -->
     <div id="live-drop">Live drop will appear here</div>
 
-    <div class="tiles">
-      <button id="btn-open">🎁 Open Case</button>
+    <!-- Результат -->
+    <pre id="result"></pre>
+
+    <!-- Нижняя панель с кнопками -->
+    <div class="bottom-bar">
       <button id="btn-top">🏆 Top 100</button>
+      <button id="btn-open">🎁 Open Case</button>
       <button id="btn-ref">👥 Referral</button>
     </div>
-
-    <pre id="result"></pre>
   </div>
 
   <script src="app.js"></script>
