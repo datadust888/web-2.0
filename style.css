@@ -58,3 +58,23 @@ body {
   /* если хочешь полупрозрачный чёрный слой поверх */
   color: white;
 }
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* чтобы не было полос прокрутки */
+  background: black;
+}
+
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 110%; /* немного больше экрана для плавности */
+  height: 110%;
+  background: url("stars.png") repeat;
+  background-size: cover;
+  transform: translate(0px, 0px);
+  transition: transform 0.1s linear; /* плавность */
+  z-index: -1; /* чтобы было под контентом */
+}

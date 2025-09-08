@@ -21,4 +21,9 @@ document.getElementById("btn-top").onclick = () => {
 
 document.getElementById("btn-ref").onclick = () => {
   result.innerText = "Referral clicked!";
-};
+};document.addEventListener("mousemove", (event) => {
+  const x = (event.clientX / window.innerWidth - 0.5) * 30;  // чем больше число, тем сильнее сдвиг
+  const y = (event.clientY / window.innerHeight - 0.5) * 30;
+
+  document.getElementById("background").style.transform = translate(${x}px, ${y}px);
+});
