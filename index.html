@@ -1,45 +1,130 @@
-png" alt="profile avatar"/>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>FiatValue Cases</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="top-bar">
+      <div class="left-area">
+        <button id="btnClose" class="close-btn">Закрыть</button>
+      </div>
+      <div class="title-area">
+        <div class="title">FiatValue Cases</div>
+        <div class="subtitle">Официальное WebApp приложение</div>
+      </div>
+      <div class="right-area">
+        <div class="balance-box">
+          <img id="avatar" src="default-avatar.png" alt="avatar"/>
+          <span id="balance">0.00 ⭐️</span>
+          <button id="btn-add-balance-top">+</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- LIVE DROP -->
+    <section class="live-drop" id="live-drop-line"></section>
+
+    <!-- PAGES -->
+    <main class="pages">
+
+      <!-- MAIN -->
+      <section id="page-main" class="page active-page">
+        <div class="banner">
+          <div>
+            <div class="banner-title">Бесплатный кейс</div>
+            <div class="banner-sub">Открывай один раз в день</div>
+          </div>
+          <button id="takeBtn" class="btn-primary">Взять</button>
+        </div>
+
+        <div id="free-case-result" class="result-area">Нажми на кейс, чтобы открыть</div>
+
+        <div id="casesGrid" class="cases">
+          <div id="free-case-card" class="case big" data-price="0" data-name="Free Case">
+            <div class="badge hot">FREE</div>
+            <div class="case-preview">🎁</div>
+            <div class="case-footer">
+              <span class="pill">0 ⭐️</span>
+              <span>Free Daily</span>
+            </div>
+          </div>
+
+          <div class="case" data-price="50" data-name="Starter">
+            <div class="badge">50 ⭐️</div>
+            <div class="case-preview">📦</div>
+            <div class="case-footer">
+              <span class="pill">Starter</span>
+              <span>⭐️</span>
+            </div>
+          </div>
+
+          <div class="case" data-price="200" data-name="Pro">
+            <div class="badge hot">200 ⭐️</div>
+            <div class="case-preview">💎</div>
+            <div class="case-footer">
+              <span class="pill">Pro</span>
+              <span>⭐️</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOP -->
+      <section id="page-top" class="page">
+        <h2>Топ пользователей</h2>
+        <div id="leaderboardList" class="leaderboard"></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="page-profile" class="page">
+        <div class="profile-header">
+          <img id="profile-avatar" src="default-avatar.png" alt="profile avatar"/>
           <div class="profile-info">
             <div id="profile-name">Guest</div>
-            <div class="profile-sub">Connected wallet: <span id="wallet-address">—</span></div>
+            <div class="profile-sub">Кошелёк: <span id="wallet-address">—</span></div>
           </div>
         </div>
 
         <div class="profile-controls">
           <div class="profile-balance">
-            <span>Balance</span>
+            <span>Баланс</span>
             <div class="balance-box small">
               <span id="profile-balance">0.00 ⭐️</span>
-              <button id="btn-deposit-profile" class="btn-ghost">Deposit</button>
+              <button id="btn-deposit-profile" class="btn-ghost">Пополнить</button>
             </div>
           </div>
 
           <div class="wallet-actions">
-            <button id="btn-connect-wallet" class="btn-ghost">Connect Wallet</button>
-            <button id="btn-disconnect-wallet" class="btn-ghost">Disconnect</button>
+            <button id="btn-connect-wallet" class="btn-ghost">Подключить кошелёк</button>
+            <button id="btn-disconnect-wallet" class="btn-ghost">Отключить</button>
           </div>
 
           <div class="referral">
-            <label>Referral link</label>
+            <label>Реферальная ссылка</label>
             <div class="ref-row">
               <input id="ref-link" readonly />
-              <button id="btn-copy-ref" class="btn-ghost">Copy</button>
+              <button id="btn-copy-ref" class="btn-ghost">Скопировать</button>
             </div>
           </div>
 
           <div class="inventory">
-            <h4>Inventory</h4>
+            <h4>Инвентарь</h4>
             <div id="inventory-items" class="inventory-grid"></div>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
-      <div id="nav-main" class="nav-item active">Main</div>
-      <div id="nav-top" class="nav-item">7-day</div>
-      <div id="nav-profile" class="nav-item">Profile</div>
+    <!-- NAV --><nav class="bottom-nav">
+      <div id="nav-main" class="nav-item active">Главная</div>
+      <div id="nav-top" class="nav-item">Топ</div>
+      <div id="nav-profile" class="nav-item">Профиль</div>
     </nav>
   </div>
 

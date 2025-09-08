@@ -1,9 +1,9 @@
 // Telegram WebApp
 const tg = window.Telegram?.WebApp;
 if (tg?.ready) tg.ready();
-if (tg?.expand) try{ tg.expand(); }catch(e){/*ignore*/}
+if (tg?.expand) try { tg.expand(); } catch(e) { /* ignore */ }
 
-// Fallback mock for local dev (if not in telegram)
+// Fallback mock for local dev (если не в Telegram)
 if (!tg) {
   window.Telegram = { WebApp: {
     MainButton: {
@@ -52,7 +52,8 @@ const takeBtn = document.getElementById('takeBtn');
 // --- APP STATE
 let currentBalance = 0.00;
 let inventory = [];
-// FREE DAILY кейс предметы (теперь с .jpg)
+
+// FREE DAILY кейс предметы (с .jpg)
 const freeDailyItems = [
   { name: "+1 ⭐️", stars: 1, img: "items/star1.jpg" },
   { name: "+3 ⭐️", stars: 3, img: "items/star3.jpg" },
@@ -83,16 +84,18 @@ const leaderboard = [
 function updateBalanceUI(){
   balanceEl.innerText = currentBalance.toFixed(2) + " ⭐️";
   profileBalanceEl.innerText = currentBalance.toFixed(2) + " ⭐️";
-}
+} 
 
 function addLiveDropItem(imgUrl, text){
   const el = document.createElement('div');
   el.className = 'drop-item';
-  el.innerHTML = <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><img src="${imgUrl}" style="width:36px;height:36px;border-radius:8px"/><div style="font-size:11px;color:var(--muted)">${text || ''}</div></div>;
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <img src="${imgUrl}" style="width:36px;height:36px;border-radius:8px"/>
+      <div style="font-size:11px;color:var(--muted)">${text || ''}</div>
+    </div>`;
   liveDropLine.appendChild(el);
-  // keep max
   while(liveDropLine.children.length > 20) liveDropLine.removeChild(liveDropLine.children[0]);
-  // auto-scroll to end
   liveDropLine.scrollLeft = liveDropLine.scrollWidth;
 }
 
@@ -110,30 +113,39 @@ function updateInventoryUI(){
 }
 
 // render leaderboard
-function renderLeaderboard(){const root = document.getElementById('leaderboardList');
+function renderLeaderboard(){
+  const root = document.getElementById('leaderboardList');
   root.innerHTML = '';
   leaderboard.forEach((u, idx)=>{
-    const row = document.createElement('div'); row.className='row';
-    row.innerHTML = <div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:10px;overflow:hidden"><img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover" /></div><div><div style="font-weight:700">${idx+1}. ${u.name}</div><div style="font-size:12px;color:var(--muted)">spent: ${u.amount} ⭐️</div></div></div><div style="font-weight:800">${u.amount} ⭐️</div>;
+    const row = document.createElement('div'); 
+    row.className='row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:40px;height:40px;border-radius:10px;overflow:hidden">
+          <img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover" />
+        </div>
+        <div>
+          <div style="font-weight:700">${idx+1}. ${u.name}</div>
+          <div style="font-size:12px;color:var(--muted)">spent: ${u.amount} ⭐️</div>
+        </div>
+      </div>
+      <div style="font-weight:800">${u.amount} ⭐️</div>`;
     root.appendChild(row);
   });
 }
 
-// open case (core logic kept)
+// open case
 function openCaseRandom(items){
   const item = items[Math.floor(Math.random()*items.length)];
-  // update balance & inventory
   currentBalance += item.stars || 0;
   inventory.push(item);
   updateInventoryUI();
   updateBalanceUI();
-  addLiveDropItem(item.img || 'items/star1.png', item.name);
+  addLiveDropItem(item.img || 'items/star1.jpg', item.name);
   freeCaseResult.innerText = Вы получили: ${item.name};
 }
 
 // --- EVENTS & INIT
-
-// fix: profile name/avatar if Telegram user present
 const user = tg?.initDataUnsafe?.user;
 if(user){
   profileNameEl.innerText = user.first_name || 'User';
@@ -148,16 +160,17 @@ document.getElementById('free-case-card').addEventListener('click', ()=>{
   openCaseRandom(freeDailyItems);
 });
 
-// sample: other cases (delegation)
+// cases
 casesGrid.addEventListener('click', (e)=>{
   const card = e.target.closest('.case');
   if(!card) return;
-  if(card.id === 'free-case-card') return; // handled above
+  if(card.id === 'free-case-card') return;
+
   const price = Number(card.dataset.price || 0);
   const name = card.dataset.name || 'Case';
+
   if(price > currentBalance){
     if(confirm('Недостаточно средств. Пополнить?')) {
-      // show deposit flow
       if (tg?.MainButton) {
         tg.MainButton.text = 'Pay';
         tg.MainButton.show();
@@ -169,10 +182,10 @@ casesGrid.addEventListener('click', (e)=>{
     }
     return;
   }
-  // subtract currency and open (demo: price -> stars)
+
   currentBalance -= price;
   updateBalanceUI();
-  const reward = { name: Prize from ${name}, stars: Math.round(price*6), img: 'items/star1.png' };
+  const reward = { name: Prize from ${name}, stars: Math.round(price*6), img: 'items/star1.jpg' };
   inventory.push(reward);
   updateInventoryUI();
   addLiveDropItem(reward.img, reward.name);
@@ -192,7 +205,6 @@ navMain.addEventListener('click', ()=> showPage('main'));
 navTop.addEventListener('click', ()=> { showPage('top'); renderLeaderboard(); });
 navProfile.addEventListener('click', ()=> { showPage('profile'); });
 
-// close button
 btnClose.addEventListener('click', ()=> {
   if (tg?.close) tg.close();
   else alert('Close (not in Telegram)');
@@ -218,10 +230,9 @@ btnDepositProfile.addEventListener('click', ()=> {
 // wallet connect/disconnect (mock)
 let walletAddr = null;
 btnConnectWallet.addEventListener('click', ()=> {
-  walletAddr = 'UQBS6...k5qv'; // demo: in real scenario call wallet connect
+  walletAddr = 'UQBS6...k5qv';
   document.getElementById('wallet-address').innerText = walletAddr;
-  // generate referral
-  refLinkInput.value = https://t.me/case_official_bot?start=${walletAddr.slice(-6)};
+  refLinkInput.value = https://t.me/fiatvalue_bot?start=${walletAddr.slice(-6)};
   alert('Wallet connected (mock)');
 });
 btnDisconnectWallet.addEventListener('click', ()=> {
@@ -243,10 +254,11 @@ btnCopyRef.addEventListener('click', async ()=>{
   }
 });
 
-// banner take btn (use MainButton)
+// banner take btn
 takeBtn.addEventListener('click', ()=>{
   if (tg?.MainButton) {
-    tg.MainButton.text = 'Получить'; tg.MainButton.show();
+    tg.MainButton.text = 'Получить'; 
+    tg.MainButton.show();
     tg.MainButton.onClick(()=> {
       alert('You clicked Telegram MainButton: Получить (mock)');
       tg.MainButton.hide();
@@ -256,10 +268,10 @@ takeBtn.addEventListener('click', ()=>{
   }
 });
 
-// simulate live drops (demo) - in real use: subscribe to websocket/event-stream
+// simulate live drops
 setInterval(()=>{
   const item = freeDailyItems[Math.floor(Math.random()*freeDailyItems.length)];
-  addLiveDropItem(item.img || 'items/star1.png', item.name);
+  addLiveDropItem(item.img || 'items/star1.jpg', item.name);
 }, 5000);
 
 // init UI
