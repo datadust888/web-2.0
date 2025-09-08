@@ -1,52 +1,88 @@
-// Telegram WebApp
-const tg = window.Telegram?.WebApp;
-if (tg) tg.expand();
-
-// DOM элементы
-const nameEl = document.getElementById("name");
-const avatarEl = document.getElementById("avatar");
-const balanceEl = document.getElementById("balance");
-const liveDrop = document.getElementById("live-drop");
-const result = document.getElementById("result");
-const background = document.getElementById("background");
-
-// Пользователь
-const user = tg?.initDataUnsafe?.user;
-const userId = user?.id || 0;
-
-// Устанавливаем имя, аватар и баланс
-if (user) {
-  nameEl.innerText = user.first_name || "Guest";
-  if (user.photo_url) avatarEl.src = user.photo_url;
-}
-balanceEl.innerText = "0 ⭐️"; // Можно обновлять через API
-
-// Кнопки
-document.getElementById("btn-open").onclick = () => {
-  result.innerText = "Кейс открыт!";
-  liveDrop.innerText = "Последний дроп: ⭐️";
-};
-document.getElementById("btn-top").onclick = () => result.innerText = "Топ 100 показан!";
-document.getElementById("btn-ref").onclick = () => {
-  if (userId) {
-    result.innerText = Ваша реферальная ссылка:\nhttps://t.me/fiatvalue_bot?start=${userId};
-  } else result.innerText = "Реферальная ссылка недоступна";
-};
-
-// Параллакс фона
-if (background) {
-  document.addEventListener("mousemove", e => {
-    const x = (e.clientX / window.innerWidth - 0.5) * 20;
-    const y = (e.clientY / window.innerHeight - 0.5) * 20;
-    background.style.transform = translate(${x}px, ${y}px);
-  });
+/* Базовые стили */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  color: white;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("stars.jpg") no-repeat center center fixed;
+  background-size: cover;
 }
 
-// Мерцание звёзд (динамический эффект)
-function twinkleStars() {
-  if (!background) return;
-  const opacity = 0.05 + Math.random() * 0.1;
-  background.style.backgroundColor = rgba(255,255,255,${opacity});
-  requestAnimationFrame(twinkleStars);
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  transition: transform 0.1s linear;
 }
-twinkleStars();
+
+/* Контейнер приложения без ограничителя 9:16 */
+.app {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 0;
+  background: rgba(0,0,0,0); /* прозрачный фон */
+}
+
+/* Верхняя панель */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Профиль слева */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+/* Баланс справа */
+#balance {
+  font-weight: bold;
+}
+
+/* Live drop */
+#live-drop {
+  margin: 12px 0;
+  padding: 8px;
+  background: rgba(255,255,255,0.05);
+}
+
+/* Результат */
+#result {
+  white-space: pre-wrap;
+  margin-top: 10px;
+}
+
+/* Нижняя панель с надписями */
+.bottom-bar-text {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.bottom-bar-text div {
+  flex: 1;
+  text-align: center;
+}
+.bottom-bar-text div:first-child { text-align: left; }
+.bottom-bar-text div:last-child { text-align: right; }
