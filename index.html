@@ -4,45 +4,7 @@
   <meta charset="utf-8">
   <title>FiatValue Cases</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  
-  <!-- Стили -->
-  <link rel="stylesheet" href="/static/style.css">
-  <style>
-    /* Если хочешь, фон прямо в HTML */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background: url("/web/stars.jpg") no-repeat center center fixed;
-      background-size: cover;
-      color: white;
-      height: 100vh;
-      overflow: hidden;
-    }
-    #background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-    .app { padding: 20px; text-align: center; }
-    .profile { display: flex; align-items: center; gap: 12px; justify-content: center; }
-    .profile img { width: 64px; height: 64px; border-radius: 50%; }
-    .tiles button {
-      margin: 6px;
-      padding: 12px;
-      background: rgba(255,255,255,0.1);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .tiles button:hover { background: rgba(255,255,255,0.2); }
-    #live-drop { margin: 12px 0; padding: 8px; background: rgba(255,255,255,0.05); }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -52,7 +14,7 @@
   <!-- Контент -->
   <div class="app">
     <div class="profile">
-      <img id="avatar" src="/static/default-avatar.png" alt="Avatar"/>
+      <img id="avatar" src="default-avatar.png" alt="Avatar"/>
       <div class="info">
         <div id="name">Guest</div>
         <div id="balance">0 ⭐️</div>
@@ -70,34 +32,6 @@
     <pre id="result"></pre>
   </div>
 
-  <!-- Скрипт -->
-  <script>
-    // Заглушка для Telegram WebApp
-    const tg = window.Telegram?.WebApp;
-    if (tg) tg.expand();
-
-    const nameEl = document.getElementById("name");
-    const balanceEl = document.getElementById("balance");
-    const liveDrop = document.getElementById("live-drop");
-    const result = document.getElementById("result");
-
-    // Установка имени
-    nameEl.innerText = "Привет, " + (tg?.initDataUnsafe?.user?.first_name || "Гость");
-
-    // Заглушки для кнопок
-    document.getElementById("btn-open").onclick = () => {
-      result.innerText = "Открыт кейс!";
-      liveDrop.innerText = "Последний дроп: ⭐️";
-    };
-
-    document.getElementById("btn-top").onclick = () => {
-      result.innerText = "Топ 100 показан!";
-    };
-
-    document.getElementById("btn-ref").onclick = () => {
-      result.innerText = "Ссылка на реферал: https://t.me/fiatvalue_bot?start=12345";
-    };
-  </script>
-
+  <script src="app.js"></script>
 </body>
 </html>

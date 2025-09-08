@@ -1,35 +1,63 @@
+/* Базовый фон */
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden;
   font-family: sans-serif;
   color: white;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-  /* фон с картинкой */
-  background: url("stars.jpg") repeat center center fixed;
+  /* Фон */
+  background: url("stars.jpg") no-repeat center center fixed;
   background-size: cover;
 }
 
+/* Фоновой блок для параллакса (если захотим позже) */
 #background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("stars.jpg") repeat;
-  background-size: cover;
   z-index: -1;
+  transition: transform 0.1s linear;
 }
 
-.app { padding: 20px; }
+/* Контейнер приложения в формате 9:16 */
+.app {
+  max-width: 360px;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-radius: 12px;
+}
 
-.profile { display: flex; align-items: center; gap: 12px; }
-.profile img { width: 64px; height: 64px; border-radius: 50%; }
+/* Профиль */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.profile img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
 
+/* Кнопки */
 .tiles button {
-  margin: 6px;
+  margin: 6px 0;
   padding: 12px;
+  width: 100%;
   background: rgba(255,255,255,0.1);
   border: none;
   border-radius: 8px;
@@ -37,21 +65,13 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
+.tiles button:hover {
+  background: rgba(255,255,255,0.2);
+}
 
-.tiles button:hover { background: rgba(255,255,255,0.2); }
-
+/* Live drop */
 #live-drop {
   margin: 12px 0;
   padding: 8px;
   background: rgba(255,255,255,0.05);
-}
-/* Ограничиваем ширину и высоту для формата 9:16 */
-.app {
-  max-width: 360px;       /* например ширина телефона */
-  width: 100%;
-  aspect-ratio: 9 / 16;   /* это задаёт 9:16 автоматически */
-  margin: 0 auto;          /* центрируем по горизонтали */
-  background: rgba(0,0,0,0.5); /* можно немного затемнить контент на фоне */
-  padding: 20px;
-  box-sizing: border-box;
 }

@@ -10,7 +10,9 @@ const result = document.getElementById("result");
 const background = document.getElementById("background");
 
 // Устанавливаем имя пользователя
-nameEl.innerText = "Привет, " + (tg?.initDataUnsafe?.user?.first_name || "Гость");
+const user = tg?.initDataUnsafe?.user;
+const userId = user?.id || 0;
+nameEl.innerText = "Привет, " + (user?.first_name || "Гость");
 
 // Заглушки для кнопок
 document.getElementById("btn-open").onclick = () => {
@@ -23,17 +25,19 @@ document.getElementById("btn-top").onclick = () => {
 };
 
 document.getElementById("btn-ref").onclick = () => {
-  result.innerText = "Ссылка на реферал: https://t.me/fiatvalue_bot?start=12345";
+  if (userId) {
+    const referralLink = https://t.me/fiatvalue_bot?start=${userId};
+    result.innerText = Ваша реферальная ссылка:\n${referralLink};
+  } else {
+    result.innerText = "Реферальная ссылка недоступна";
+  }
 };
 
-// Параллакс фонового изображения
+// Параллакс фона (по желанию)
 if (background) {
   document.addEventListener("mousemove", (event) => {
-    const x = (event.clientX / window.innerWidth - 0.5) * 30; // чем больше число, тем сильнее сдвиг
-    const y = (event.clientY / window.innerHeight - 0.5) * 30;
+    const x = (event.clientX / window.innerWidth - 0.5) * 20;
+    const y = (event.clientY / window.innerHeight - 0.5) * 20;
     background.style.transform = translate(${x}px, ${y}px);
   });
-
-  // Плавность через CSS transition
-  background.style.transition = "transform 0.1s linear";
 }
