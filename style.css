@@ -17,7 +17,7 @@ body {
   left: 0;
   width: 110%;
   height: 110%;
-  background: url("stars.jpg") repeat; /* или PNG */
+  background: url("/static/stars.jpg") repeat; /* путь к картинке */
   background-size: cover;
   z-index: -1;
   pointer-events: none;
@@ -30,7 +30,7 @@ body {
   to { background-position: -1000px 1000px; }
 }
 
-/* Сетка маленьких прозрачных звезд */
+/* Маленькие прозрачные звёзды */
 body::before {
   content: "";
   position: fixed;

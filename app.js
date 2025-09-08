@@ -1,5 +1,6 @@
-const tg = window.Telegram.WebApp;
-tg.expand();
+// Проверяем наличие Telegram WebApp
+const tg = window.Telegram?.WebApp;
+if (tg) tg.expand();
 
 const nameEl = document.getElementById("name");
 const balanceEl = document.getElementById("balance");
@@ -7,28 +8,36 @@ const liveDrop = document.getElementById("live-drop");
 const result = document.getElementById("result");
 const background = document.getElementById("background");
 
-nameEl.innerText = "Привет, " + (tg.initDataUnsafe?.user?.first_name || "Гость");
+// Имя пользователя
+nameEl.innerText = "Привет, " + (tg?.initDataUnsafe?.user?.first_name || "Гость");
 
+// Запрос к API
 async function post(path, body) {
-  const res = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-  return res.json();
+  try {
+    const res = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  } catch (err) {
+    console.error(err);
+    return { ok: false, error: "Network error" };
+  }
 }
 
+// Загрузка профиля
 async function loadProfile() {
-  const r = await post("/api/profile", { init_data: tg.initData });
+  const r = await post("/api/profile", { init_data: tg?.initData });
   if (r.ok) {
     nameEl.innerText = ${r.profile.display_name || "Guest"} ${r.profile.username || ""};
     balanceEl.innerText = (r.profile.balance || 0) + " ⭐️";
   }
 }
 
-// 🎁 Open Case
+// Открыть кейс
 document.getElementById("btn-open").onclick = async () => {
-  const r = await post("/api/open_case", { init_data: tg.initData, case_slug: "free" });
+  const r = await post("/api/open_case", { init_data: tg?.initData, case_slug: "free" });
   if (r.ok) {
     if (r.prize.type === "stars") {
       result.innerText = You won ${r.prize.amount} ⭐️;
@@ -42,7 +51,7 @@ document.getElementById("btn-open").onclick = async () => {
   }
 };
 
-// 🏆 Top 100
+// Топ 100
 document.getElementById("btn-top").onclick = async () => {
   const r = await post("/api/top100", {});
   if (r.ok) {
@@ -52,9 +61,9 @@ document.getElementById("btn-top").onclick = async () => {
   }
 };
 
-// 👥 Referral
+// Реферал
 document.getElementById("btn-ref").onclick = () => {
-  const me = tg.initDataUnsafe?.user;
+  const me = tg?.initDataUnsafe?.user;
   if (me) {
     result.innerText = Your referral: https://t.me/fiatvalue_bot?start=${me.id};
   }
@@ -62,10 +71,10 @@ document.getElementById("btn-ref").onclick = () => {
 
 loadProfile();
 
-// 🌌 Параллакс по движению мыши
+// Параллакс по мыши
 let mouseX = 0, mouseY = 0;
 document.addEventListener("mousemove", (e) => {
-  mouseX = (e.clientX / window.innerWidth - 0.5) * 20;  
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 20;
   mouseY = (e.clientY / window.innerHeight - 0.5) * 20;
 });
 
