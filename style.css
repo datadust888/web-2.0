@@ -14,3 +14,23 @@ body::before {
   border-radius:8px; color:white; cursor:pointer;
 }
 #live-drop {margin:12px 0; padding:8px; background:rgba(255,255,255,0.05);}
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* чтобы не было полос прокрутки */
+  background: black;
+}
+
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 110%; /* немного больше экрана для плавности */
+  height: 110%;
+  background: url("stars.jpg") repeat;
+  background-size: cover;
+  transform: translate(0px, 0px);
+  transition: transform 0.1s linear; /* плавность */
+  z-index: -1; /* чтобы было под контентом */
+}

@@ -46,8 +46,14 @@ document.getElementById("btn-top").onclick = async ()=>{
 document.getElementById("btn-ref").onclick = ()=>{
   const me = tg.initDataUnsafe?.user;
   if(me){
-    result.innerText = Your referral: https://t.me/YOUR_BOT_USERNAME?start=${me.id};
+    result.innerText = Your referral: https://t.me/fiatvalue_bot?start=${me.id};
   }
 };
 
 loadProfile();
+document.addEventListener("mousemove", (event) => {
+  const x = (event.clientX / window.innerWidth - 0.5) * 30;  // чем больше число, тем сильнее сдвиг
+  const y = (event.clientY / window.innerHeight - 0.5) * 30;
+
+  document.getElementById("background").style.transform = translate(${x}px, ${y}px);
+});
