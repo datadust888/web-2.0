@@ -1,6 +1,8 @@
+// Telegram WebApp
 const tg = window.Telegram?.WebApp;
 if (tg) tg.expand();
 
+// DOM элементы
 const nameEl = document.getElementById("name");
 const avatarEl = document.getElementById("avatar");
 const balanceEl = document.getElementById("balance");
@@ -8,14 +10,16 @@ const liveDrop = document.getElementById("live-drop");
 const result = document.getElementById("result");
 const background = document.getElementById("background");
 
+// Пользователь
 const user = tg?.initDataUnsafe?.user;
 const userId = user?.id || 0;
 
+// Устанавливаем имя, аватар и баланс
 if (user) {
   nameEl.innerText = user.first_name || "Guest";
   if (user.photo_url) avatarEl.src = user.photo_url;
 }
-balanceEl.innerText = "0 ⭐️";
+balanceEl.innerText = "0 ⭐️"; // Можно обновлять через API
 
 // Кнопки
 document.getElementById("btn-open").onclick = () => {
@@ -37,3 +41,12 @@ if (background) {
     background.style.transform = translate(${x}px, ${y}px);
   });
 }
+
+// Мерцание звёзд (динамический эффект)
+function twinkleStars() {
+  if (!background) return;
+  const opacity = 0.05 + Math.random() * 0.1;
+  background.style.backgroundColor = rgba(255,255,255,${opacity});
+  requestAnimationFrame(twinkleStars);
+}
+twinkleStars();

@@ -1,30 +1,48 @@
-<div class="app">
-  <!-- Верхняя панель -->
-  <div class="top-bar">
-    <div class="profile">
-      <img id="avatar" src="default-avatar.png" alt="Avatar"/>
-      <div id="name">Guest</div>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>FiatValue Cases</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Фон -->
+  <div id="background"></div>
+
+  <!-- Контент -->
+  <div class="app">
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+      <div class="profile">
+        <img id="avatar" src="default-avatar.png" alt="Avatar"/>
+        <div id="name">Guest</div>
+      </div>
+      <div id="balance">0 ⭐️</div>
     </div>
-    <div id="balance">0 ⭐️</div>
+
+    <!-- Live drop -->
+    <div id="live-drop">Live drop will appear here</div>
+
+    <!-- Результат -->
+    <pre id="result"></pre>
+
+    <!-- Нижняя панель с кнопками -->
+    <div class="bottom-bar">
+      <button id="btn-top">🏆 Top 100</button>
+      <button id="btn-open">🎁 Open Case</button>
+      <button id="btn-ref">👥 Referral</button>
+    </div>
+
+    <!-- Нижняя панель с надписями -->
+    <div class="bottom-bar-text">
+      <div>Top-100</div>
+      <div>Cases</div>
+      <div>Profile</div>
+    </div>
   </div>
 
-  <!-- Live drop -->
-  <div id="live-drop">Live drop will appear here</div>
-
-  <!-- Результат -->
-  <pre id="result"></pre>
-
-  <!-- Нижняя панель с кнопками -->
-  <div class="bottom-bar">
-    <button id="btn-top">🏆 Top 100</button>
-    <button id="btn-open">🎁 Open Case</button>
-    <button id="btn-ref">👥 Referral</button>
-  </div>
-
-  <!-- Нижняя панель с надписями -->
-  <div class="bottom-bar-text">
-    <div>Top-100</div>
-    <div>Cases</div>
-    <div>Profile</div>
-  </div>
-</div>
+  <script src="app.js"></script>
+</body>
+</html>
