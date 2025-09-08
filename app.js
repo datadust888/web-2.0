@@ -6,7 +6,7 @@ if (tg) tg.expand();
 const nameEl = document.getElementById("name");
 const avatarEl = document.getElementById("avatar");
 const balanceEl = document.getElementById("balance");
-const liveDrop = document.getElementById("live-drop");
+const liveDropLine = document.getElementById("live-drop-line");
 const result = document.getElementById("result");
 const background = document.getElementById("background");
 
@@ -47,3 +47,26 @@ document.getElementById("bottom-profile").onclick = () => {
     result.innerText = Profile selected!\nРеферальная ссылка:\nhttps://t.me/fiatvalue_bot?start=${userId};
   } else result.innerText = "Profile selected!";
 };
+
+// Лайв-дроп: функция добавления предмета
+function addLiveDropItem(imgUrl) {
+  const img = document.createElement("img");
+  img.src = imgUrl;
+  liveDropLine.appendChild(img);
+
+  // Если больше 15 элементов – удаляем первый
+  if (liveDropLine.children.length > 15) {
+    liveDropLine.removeChild(liveDropLine.children[0]);
+  }
+}
+
+// Пример добавления предметов каждые 2 секунды
+const sampleItems = [
+  "item1.png","item2.png","item3.png","item4.png","item5.png"
+];
+let counter = 0;
+setInterval(() => {
+  const item = sampleItems[counter % sampleItems.length];
+  addLiveDropItem(item);
+  counter++;
+}, 2000);

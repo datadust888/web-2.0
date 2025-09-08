@@ -23,7 +23,7 @@ body {
   transition: transform 0.1s linear;
 }
 
-/* Контейнер приложения без ограничителя 9:16 */
+/* Контейнер приложения */
 .app {
   width: 100%;
   height: 100%;
@@ -59,11 +59,37 @@ body {
   font-weight: bold;
 }
 
-/* Live drop */
-#live-drop {
-  margin: 12px 0;
-  padding: 8px;
-  background: rgba(255,255,255,0.05);
+/* Анимация появления */
+.fade-in {
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: fadeIn 0.8s forwards;
+}
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Лайв-дроп линия */
+#live-drop-line {
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  margin: 10px 0;
+  padding: 4px 0;
+  max-height: 64px;
+}
+#live-drop-line img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+#live-drop-line img:hover {
+  transform: scale(1.2);
 }
 
 /* Результат */
@@ -88,8 +114,6 @@ body {
 }
 .bottom-bar-text .bottom-item:first-child { text-align: left; }
 .bottom-bar-text .bottom-item:last-child { text-align: right; }
-
-/* Эффект при нажатии */
 .bottom-bar-text .bottom-item:active {
   color: #ffd700;
   transform: scale(1.1);
