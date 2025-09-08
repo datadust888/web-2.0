@@ -31,31 +31,18 @@ body {
   left: 0;
   width: 110%;
   height: 110%;
-  background: url("stars.jpg") repeat;
+  background: url("stars.jpg") repeat; /* или stars.png, если у тебя PNG */
   background-size: cover;
-  transform: translate(0px, 0px);
-  transition: transform 0.1s linear;
+  animation: moveStars 60s linear infinite; /* 🔥 анимация */
   z-index: -1;
 }
 
-#content {
-  position: relative;
-  z-index: 1;
-  padding-top: 20%;
-}
-
-button {
-  background: transparent;
-  border: 2px solid white;
-  color: white;
-  padding: 10px 20px;
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: all 0.3s;
-}
-
-button:hover {
-  background: white;
-  color: black;
+/* 🔥 Анимация движения звёзд */
+@keyframes moveStars {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -1000px 1000px;
+  }
 }
