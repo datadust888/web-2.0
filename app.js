@@ -1,6 +1,23 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
+// 👤 Имя пользователя
+document.getElementById("username").innerText =
+  "Привет, " + (tg.initDataUnsafe?.user?.first_name || "Гость");
+
+// 🎁 Функция открытия кейса
+function openCase() {
+  tg.sendData(JSON.stringify({ action: "open_case", type: "free" }));
+}
+
+// 🌌 Эффект параллакса для фона
+document.addEventListener("mousemove", (event) => {
+  const x = (event.clientX / window.innerWidth - 0.5) * 30;
+  const y = (event.clientY / window.innerHeight - 0.5) * 30;
+  document.getElementById("background").style.transform = translate(${x}px, ${y}px);
+});const tg = window.Telegram.WebApp;
+tg.expand();
+
 const nameEl = document.getElementById("name");
 const balanceEl = document.getElementById("balance");
 const liveDrop = document.getElementById("live-drop");
