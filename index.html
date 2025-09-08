@@ -5,72 +5,74 @@
   <title>FiatValue Cases</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-
   <!-- Фон -->
   <div id="background"></div>
 
-  <!-- Контент -->
-  <div class="app">
+  <!-- Верхняя панель -->
+  <header class="top-bar">
+    <img id="avatar" src="default-avatar.png" alt="avatar"/>
+    <div class="balance-box">
+      <span id="balance">0.00 ⭐️</span>
+      <button id="btn-add-balance">+</button>
+    </div>
+  </header>
 
-    <!-- Верхняя панель -->
-    <div class="top-bar">
+  <!-- Страницы -->
+  <main>
+    <!-- Главная -->
+    <section id="page-main" class="page">
+      <h2>Main</h2>
+      <div class="cases">
+        <div class="case">
+          <img src="free-daily.png" alt="FREE DAILY Case" class="case-preview"/>
+          <button id="open-free-case">Open FREE DAILY</button>
+          <div id="free-case-result"></div>
+        </div>
+      </div>
+      <div id="live-drop-line" class="live-drop"></div>
+    </section>
+
+    <!-- Топ 100 -->
+    <section id="page-top" class="page">
+      <h2>7-day Top</h2>
+      <p>Здесь будет топ 100 игроков.</p>
+    </section>
+
+    <!-- Профиль -->
+    <section id="page-profile" class="page">
+      <h2>Profile</h2>
       <div class="profile">
-        <img id="avatar" src="default-avatar.png" alt="Avatar"/>
-        <div id="name" class="fade-in">Guest</div>
+        <img id="profile-avatar" src="default-avatar.png" alt="profile avatar"/>
+        <div id="profile-name">Guest</div>
       </div>
-      <div class="balance-container">
-        <div id="balance" class="fade-in">0 ⭐️</div>
-        <button id="btn-add-balance">+</button>
-      </div>
-    </div>
-
-    <!-- Главная область (динамически меняется) -->
-    <div id="main-content">
-      <!-- На старте показываем Main (кейсы) -->
-      <div id="page-main" class="page active-page">
-        <h2>FREE DAILY</h2>
-        <img src="free-daily.png" alt="FREE DAILY Case" class="case-preview"/>
-        <button id="open-free-case">Open FREE DAILY</button>
-        <div id="free-case-result"></div>
-      </div>
-
-      <div id="page-top" class="page">
-        <h2>Top 100 - 7 days</h2>
-        <div id="top-list"></div>
-      </div>
-
-      <div id="page-profile" class="page">
-        <h2>Profile</h2>
-        <div class="profile-info">
-          <img id="profile-avatar" src="default-avatar.png" alt="Avatar"/>
-          <div id="profile-name">Guest</div>
-        </div>
-        <div class="profile-balance">
-          <span>Balance:</span>
+      <div class="profile-balance">
+        <span>Balance:</span>
+        <div class="balance-box">
           <span id="profile-balance">0.00 ⭐️</span>
-          <button id="profile-deposit">Deposit</button>
-        </div>
-        <div class="wallet-info">
-          <span>Connected Wallet:</span>
-          <span id="wallet-address">abc12…d4mn</span>
-          <button id="wallet-disconnect">Disconnect</button>
-        </div>
-        <div class="inventory">
-          <h3>Inventory:</h3>
-          <div id="inventory-items"></div>
+          <button id="btn-add-balance">Deposit</button>
         </div>
       </div>
-    </div>
+      <div class="wallet">
+        <span>Connected Wallet:</span>
+        <span id="wallet-address">abc12…d4mn</span>
+        <button id="btn-disconnect-wallet">Disconnect</button>
+      </div>
+      <div class="inventory">
+        <h3>Inventory:</h3>
+        <div id="inventory-items"></div>
+      </div>
+    </section>
+  </main>
 
-    <!-- Нижняя панель с полукруглой рамкой -->
-    <div class="bottom-bar">
-      <div class="bottom-item" id="nav-main">Main</div>
-      <div class="bottom-item" id="nav-top">Top 100</div>
-      <div class="bottom-item" id="nav-profile">Profile</div>
-    </div>
-  </div>
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav">
+    <div id="nav-main" class="nav-item">Main</div>
+    <div id="nav-top" class="nav-item">7-day</div>
+    <div id="nav-profile" class="nav-item">Profile</div>
+  </nav>
 
   <script src="app.js"></script>
 </body>
