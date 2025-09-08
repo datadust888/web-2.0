@@ -7,7 +7,7 @@ body {
   color: white;
 
   /* фон с картинкой */
-  background: url("stars.png") repeat center center fixed;
+  background: url("stars.jpg") repeat center center fixed;
   background-size: cover;
 }
 
@@ -17,7 +17,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("stars.png") repeat;
+  background: url("stars.jpg") repeat;
   background-size: cover;
   z-index: -1;
 }
@@ -44,4 +44,14 @@ body {
   margin: 12px 0;
   padding: 8px;
   background: rgba(255,255,255,0.05);
+}
+/* Ограничиваем ширину и высоту для формата 9:16 */
+.app {
+  max-width: 360px;       /* например ширина телефона */
+  width: 100%;
+  aspect-ratio: 9 / 16;   /* это задаёт 9:16 автоматически */
+  margin: 0 auto;          /* центрируем по горизонтали */
+  background: rgba(0,0,0,0.5); /* можно немного затемнить контент на фоне */
+  padding: 20px;
+  box-sizing: border-box;
 }
