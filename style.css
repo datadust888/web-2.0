@@ -1,19 +1,4 @@
-body {margin:0; background:black; color:white; font-family:Arial;}
-body::before {
-  content:"";
-  position:fixed; inset:0;
-  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size:30px 30px;
-  pointer-events:none;
-}
-.app {padding:20px;}
-.profile {display:flex; align-items:center; gap:12px;}
-.profile img {width:64px; height:64px; border-radius:50%;}
-.tiles button {
-  margin:6px; padding:12px; background:rgba(255,255,255,0.1); border:none;
-  border-radius:8px; color:white; cursor:pointer;
-}
-#live-drop {margin:12px 0; padding:8px; background:rgba(255,255,255,0.05);}
+/* Базовые стили */
 body {
   margin: 0;
   padding: 0;
@@ -25,24 +10,56 @@ body {
   text-align: center;
 }
 
+/* Фоновые звёзды */
 #background {
   position: fixed;
   top: 0;
   left: 0;
   width: 110%;
   height: 110%;
-  background: url("stars.jpg") repeat; /* или stars.png, если у тебя PNG */
+  background: url("stars.jpg") repeat; /* или PNG */
   background-size: cover;
-  animation: moveStars 60s linear infinite; /* 🔥 анимация */
   z-index: -1;
+  pointer-events: none;
+  animation: moveStars 60s linear infinite;
 }
 
-/* 🔥 Анимация движения звёзд */
+/* Анимация движения фона */
 @keyframes moveStars {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: -1000px 1000px;
-  }
+  from { background-position: 0 0; }
+  to { background-position: -1000px 1000px; }
+}
+
+/* Сетка маленьких прозрачных звезд */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+
+/* Контент */
+.app { padding: 20px; }
+
+.profile { display: flex; align-items: center; gap: 12px; }
+.profile img { width: 64px; height: 64px; border-radius: 50%; }
+
+.tiles button {
+  margin: 6px;
+  padding: 12px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.tiles button:hover { background: rgba(255,255,255,0.2); }
+
+#live-drop {
+  margin: 12px 0;
+  padding: 8px;
+  background: rgba(255,255,255,0.05);
 }
