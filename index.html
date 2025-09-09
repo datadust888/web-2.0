@@ -1,75 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>FiatValue Cases</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app">
+  <div id="app" class="app">
 
-    <!-- HEADER -->
-    <header class="top-bar">
-      <div class="left-area">
-        <button id="btnClose" class="close-btn">Закрыть</button>
+    <!-- фон -->
+    <div id="background" class="background" aria-hidden="true"></div>
+
+    <!-- header (ниже верхней границы страницы) -->
+    <header class="header">
+      <div class="header-left">
+        <button id="btnClose" class="btn-link">✕</button>
       </div>
-      <div class="title-area">
-        <div class="title">FiatValue Cases</div>
+
+      <div class="header-center">
+        <div class="brand">FiatValue Cases</div>
         <div class="subtitle">Официальное WebApp приложение</div>
       </div>
-      <div class="right-area">
-        <div class="balance-box">
-          <img id="avatar" src="default-avatar.png" alt="avatar"/>
-          <span id="balance">0.00 ⭐️</span>
-          <button id="btn-add-balance-top">+</button>
+
+      <div class="header-right">
+        <div class="balance-inline" title="Баланс">
+          <img id="avatar" src="assets/default-avatar.png" alt="avatar" class="avatar" />
+          <div class="balance-value" id="balance">0.00 ⭐️</div>
+          <button id="btn-add-balance" class="btn-small">+</button>
         </div>
       </div>
     </header>
 
-    <!-- LIVE DROP -->
-    <section class="live-drop" id="live-drop-line"></section>
+    <!-- live drop (горизонтальная лента) -->
+    <section id="live-drop" class="live-drop" aria-live="polite" aria-label="Live drops"></section>
 
-    <!-- PAGES -->
+    <!-- main content pages (SPA-like) -->
     <main class="pages">
-
       <!-- MAIN -->
-      <section id="page-main" class="page active-page">
-        <div class="banner">
-          <div>
-            <div class="banner-title">Бесплатный кейс</div>
-            <div class="banner-sub">Открывай один раз в день</div>
+      <section id="page-main" class="page active">
+        <div class="main-top">
+          <div class="banner">
+            <div>
+              <div class="banner-title">Бесплатный кейс</div>
+              <div class="banner-sub">Открывай один раз в день</div>
+            </div>
+            <button id="open-free-case" class="btn-primary">Open FREE DAILY</button>
           </div>
-          <button id="takeBtn" class="btn-primary">Взять</button>
+
+          <div id="free-case-result" class="result">Нажми "Open FREE DAILY", чтобы открыть кейс</div>
         </div>
 
-        <div id="free-case-result" class="result-area">Нажми на кейс, чтобы открыть</div>
-
-        <div id="casesGrid" class="cases">
-          <div id="free-case-card" class="case big" data-price="0" data-name="Free Case">
-            <div class="badge hot">FREE</div>
-            <div class="case-preview">🎁</div>
+        <div class="cases-grid" id="casesGrid">
+          <!-- example cards (can be dynamic) -->
+          <div class="case-card big" data-slug="free-daily">
+            <div class="case-badge hot">FREE</div>
+            <img src="assets/free-daily.png" alt="FREE DAILY" class="case-image" />
             <div class="case-footer">
-              <span class="pill">0 ⭐️</span>
-              <span>Free Daily</span>
+              <div class="case-title">Free Daily</div>
+              <div class="case-sub">0 ⭐️</div>
             </div>
           </div>
 
-          <div class="case" data-price="50" data-name="Starter">
-            <div class="badge">50 ⭐️</div>
-            <div class="case-preview">📦</div>
+          <div class="case-card" data-slug="starter">
+            <div class="case-badge">50</div>
+            <div class="case-image emoji">📦</div>
             <div class="case-footer">
-              <span class="pill">Starter</span>
-              <span>⭐️</span>
+              <div class="case-title">Starter</div>
+              <div class="case-sub">50 ⭐️</div>
             </div>
           </div>
 
-          <div class="case" data-price="200" data-name="Pro">
-            <div class="badge hot">200 ⭐️</div>
-            <div class="case-preview">💎</div>
+          <div class="case-card" data-slug="pro">
+            <div class="case-badge hot">200</div>
+            <div class="case-image emoji">💎</div>
             <div class="case-footer">
-              <span class="pill">Pro</span>
-              <span>⭐️</span>
+              <div class="case-title">Pro</div>
+              <div class="case-sub">200 ⭐️</div>
             </div>
           </div>
         </div>
@@ -77,54 +84,51 @@
 
       <!-- TOP -->
       <section id="page-top" class="page">
-        <h2>Топ пользователей</h2>
-        <div id="leaderboardList" class="leaderboard"></div>
+        <h3>7-day Top</h3>
+        <div id="leaderboard" class="leaderboard"></div>
       </section>
 
       <!-- PROFILE -->
       <section id="page-profile" class="page">
-        <div class="profile-header">
-          <img id="profile-avatar" src="default-avatar.png" alt="profile avatar"/>
+        <h3>Profile</h3>
+
+        <div class="profile-block">
+          <img id="profile-avatar" src="assets/default-avatar.png" alt="" class="profile-avatar" />
           <div class="profile-info">
-            <div id="profile-name">Guest</div>
-            <div class="profile-sub">Кошелёк: <span id="wallet-address">—</span></div>
+            <div id="profile-name" class="profile-name">Guest</div>
+            <div class="profile-wallet">Connected Wallet: <span id="wallet-address">—</span></div>
           </div>
         </div>
 
-        <div class="profile-controls">
-          <div class="profile-balance">
-            <span>Баланс</span>
-            <div class="balance-box small">
-              <span id="profile-balance">0.00 ⭐️</span>
-              <button id="btn-deposit-profile" class="btn-ghost">Пополнить</button>
+        <div class="profile-balance-card">
+          <div class="balance-label">Balance</div>
+          <div class="balance-row">
+            <div id="profile-balance" class="profile-balance">0.00 ⭐️</div>
+            <button id="btn-deposit" class="btn-ghost">Deposit</button>
+          </div>
+        </div>
+
+        <div class="wallet-card">
+          <div class="wallet-row">
+            <div class="wallet-label">Connected Wallet</div>
+            <div class="wallet-controls"><div id="wallet-address-short" class="wallet-address">—</div>
+              <button id="btn-disconnect-wallet" class="btn-ghost small">Disconnect</button>
             </div>
           </div>
+        </div>
 
-          <div class="wallet-actions">
-            <button id="btn-connect-wallet" class="btn-ghost">Подключить кошелёк</button>
-            <button id="btn-disconnect-wallet" class="btn-ghost">Отключить</button>
-          </div>
-
-          <div class="referral">
-            <label>Реферальная ссылка</label>
-            <div class="ref-row">
-              <input id="ref-link" readonly />
-              <button id="btn-copy-ref" class="btn-ghost">Скопировать</button>
-            </div>
-          </div>
-
-          <div class="inventory">
-            <h4>Инвентарь</h4>
-            <div id="inventory-items" class="inventory-grid"></div>
-          </div>
+        <div class="inventory-card">
+          <h4>Inventory</h4>
+          <div id="inventory-items" class="inventory-grid"></div>
         </div>
       </section>
     </main>
 
-    <!-- NAV --><nav class="bottom-nav">
-      <div id="nav-main" class="nav-item active">Главная</div>
-      <div id="nav-top" class="nav-item">Топ</div>
-      <div id="nav-profile" class="nav-item">Профиль</div>
+    <!-- bottom nav (glass) -->
+    <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+      <button id="nav-main" class="nav-btn active" data-page="page-main">Main</button>
+      <button id="nav-top" class="nav-btn" data-page="page-top">7-day</button>
+      <button id="nav-profile" class="nav-btn" data-page="page-profile">Profile</button>
     </nav>
   </div>
 
