@@ -1,78 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>FiatValue Cases</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="app.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>FiatValue Bot Cases</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Верхняя панель -->
-  <header class="top-bar">
-    <div class="user-info">
-      <img id="avatar" src="default-avatar.png" alt="avatar" class="avatar" />
-      <span id="username">Guest</span>
-    </div>
-    <div class="balance-box">
-      <span id="balance">0 ★</span>
-      <button id="btn-deposit">+</button>
-    </div>
-  </header>
+  <div class="app">
 
-  <!-- Основной контейнер -->
-  <main id="main">
-    <!-- Лента лайв-дропа -->
-    <div id="live-drop" class="live-drop"></div>
-
-    <!-- Главная страница -->
-    <section id="page-main" class="page active">
-      <h2>Main</h2>
-      <div class="cases">
-        <div class="case-card" onclick="openCase('free-daily')">
-          <img src="items/free-case.jpg" alt="Free Daily" />
-          <p>FREE DAILY</p>
+    <!-- Верхняя строка: аватар и баланс -->
+    <header class="top-bar">
+      <div class="left-area">
+        <img id="avatar" src="default-avatar.png" alt="avatar" class="avatar-small">
+      </div>
+      <div class="right-area">
+        <div class="balance-box">
+          <span id="balance">0.00 ⭐️</span>
+          <button id="btn-add-balance-top">+</button>
         </div>
       </div>
-    </section>
+    </header>
 
-    <!-- Топ -->
-    <section id="page-top" class="page">
-      <h2>7-day Top 100</h2>
-      <div id="top-list"></div>
-    </section>
+    <!-- LIVE DROP -->
+    <section class="live-drop" id="live-drop-line"></section>
 
-    <!-- Профиль -->
-    <section id="page-profile" class="page">
-      <h2>Profile</h2>
-      <div class="profile-box">
-        <img id="profile-avatar" src="default-avatar.png" class="avatar-big" />
-        <h3 id="profile-username">Guest</h3>
-        <div class="profile-balance">
-          <span>Balance:</span>
-          <div class="balance-frame">
-            <span id="profile-balance">0 ★</span>
-            <button id="btn-profile-deposit">Deposit</button>
+    <!-- Главная страница с кейсами -->
+    <main class="pages">
+      <section id="page-main" class="page active-page">
+        <div id="casesGrid" class="cases">
+          <!-- Бесплатный кейс -->
+          <div id="free-case-card" class="case big" data-price="0" data-name="Free Daily">
+            <div class="badge hot">FREE</div>
+            <div class="case-preview"><img src="free_case.jpg" alt="Free Daily"></div>
+            <div class="case-footer">
+              <span class="pill">0 ⭐️</span>
+              <span>Free Daily</span>
+            </div>
           </div>
         </div>
-        <div class="wallet-box">
-          <span>Connected Wallet:</span>
-          <div class="wallet-frame">
-            <span id="wallet-address">not connected</span>
-            <button id="btn-disconnect">Disconnect</button>
+        <div id="free-case-result" class="result-area">Нажмите на кейс, чтобы открыть</div>
+      </section>
+
+      <!-- Топ-100 -->
+      <section id="page-top" class="page">
+        <h2>Топ пользователей (7 дней)</h2>
+        <div id="leaderboardList" class="leaderboard"></div>
+      </section>
+
+      <!-- Профиль -->
+      <section id="page-profile" class="page">
+        <div class="profile-header">
+          <img id="profile-avatar" src="default-avatar.png" alt="profile avatar">
+          <div class="profile-info">
+            <div id="profile-name">Guest</div>
+            <div class="profile-sub">Кошелёк: <span id="wallet-address">—</span></div>
           </div>
         </div>
-      </div>
-      <h3>Inventory:</h3>
-      <div id="inventory" class="inventory"></div>
-    </section>
-  </main>
 
-  <!-- Нижняя навигация -->
-  <nav class="bottom-nav">
-    <button onclick="navigate('page-top')" id="nav-top">Top-100</button>
-    <button onclick="navigate('page-main')" id="nav-main">Cases</button>
-    <button onclick="navigate('page-profile')" id="nav-profile">Profile</button>
-  </nav>
+        <div class="profile-controls">
+          <div class="profile-balance">
+            <span>Баланс</span>
+            <div class="balance-box small">
+              <span id="profile-balance">0.00 ⭐️</span>
+              <button id="btn-deposit-profile" class="btn-ghost">Пополнить</button>
+            </div>
+          </div>
+
+          <div class="wallet-actions">
+            <button id="btn-connect-wallet" class="btn-ghost">Подключить кошелёк</button>
+            <button id="btn-disconnect-wallet" class="btn-ghost">Отключить</button>
+          </div>
+
+          <div class="referral">
+            <label>Реферальная ссылка</label>
+            <div class="ref-row">
+              <input id="ref-link" readonly>
+              <button id="btn-copy-ref" class="btn-ghost">Скопировать</button>
+            </div>
+          </div>
+
+          <div class="inventory">
+            <h4>Инвентарь</h4>
+            <div id="inventory-items" class="inventory-grid"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Нижнее меню -->
+    <nav class="bottom-nav">
+      <div id="nav-main" class="nav-item active">Cases</div>
+      <div id="nav-top" class="nav-item">Top-100</div>
+      <div id="nav-profile" class="nav-item">Profile</div>
+    </nav>
+
+  </div>
+
+  <script src="app.js" defer></script>
 </body>
 </html>

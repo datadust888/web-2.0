@@ -1,89 +1,109 @@
+// Telegram WebApp
 const tg = window.Telegram?.WebApp;
-if (tg) tg.expand();
+if(tg?.ready) tg.ready();
+if(tg?.expand) try { tg.expand(); } catch(e){}
 
-let balance = 0;
+// DOM Elements
+const balanceEl = document.getElementById('balance');
+const profileBalanceEl = document.getElementById('profile-balance');
+const avatarEl = document.getElementById('avatar');
+const profileAvatarEl = document.getElementById('profile-avatar');
+const profileNameEl = document.getElementById('profile-name');
+const liveDropLine = document.getElementById('live-drop-line');
+const freeCaseResult = document.getElementById('free-case-result');
+
+const navMain = document.getElementById('nav-main');
+const navTop = document.getElementById('nav-top');
+const navProfile = document.getElementById('nav-profile');
+const pages = {
+  main: document.getElementById('page-main'),
+  top: document.getElementById('page-top'),
+  profile: document.getElementById('page-profile')
+};
+
+// App state
+let currentBalance = 0.00;
 let inventory = [];
 
-const pages = document.querySelectorAll(".page");
-const navButtons = document.querySelectorAll(".bottom-nav button");
+// FREE DAILY кейс
+const freeDailyItems = [
+  { name: "+1 ⭐️", stars:1, img:"items/star1.jpg" },
+  { name: "+3 ⭐️", stars:3, img:"items/star3.jpg" },
+  { name: "+5 ⭐️", stars:5, img:"items/star5.jpg" },
+  { name: "+10 ⭐️", stars:10, img:"items/star10.jpg" },
+  { name: "+15 ⭐️", stars:15, img:"items/telegram_gift1.jpg" }
+];
 
-function navigate(pageId) {
-  pages.forEach(p => p.classList.remove("active"));
-  document.getElementById(pageId).classList.add("active");
-
-  navButtons.forEach(btn => btn.classList.remove("active"));
-  event.target.classList.add("active");
+// Update balance
+function updateBalanceUI(){
+  balanceEl.innerText = currentBalance.toFixed(2) + " ⭐️";
+  profileBalanceEl.innerText = currentBalance.toFixed(2) + " ⭐️";
 }
 
-// Баланс
-function updateBalance() {
-  document.getElementById("balance").innerText = ${balance} ★;
-  document.getElementById("profile-balance").innerText = ${balance} ★;
+// Open free case
+document.getElementById('free-case-card').addEventListener('click', ()=>{
+  const item = freeDailyItems[Math.floor(Math.random()*freeDailyItems.length)];
+  currentBalance += item.stars;
+  updateBalanceUI();
+  addLiveDropItem(item.img, item.name);
+  freeCaseResult.innerText = Вы получили ${item.name};
+  inventory.push(item);
+  updateInventoryUI();
+});
+
+// Live drop
+function addLiveDropItem(imgUrl, text){
+  const el = document.createElement('div');
+  el.className = 'drop-item';
+  el.innerHTML = <img src="${imgUrl}" style="width:36px;height:36px;border-radius:6px"><span style="font-size:10px">${text}</span>;
+  liveDropLine.appendChild(el);
+  if(liveDropLine.children.length > 15) liveDropLine.removeChild(liveDropLine.children[0]);
 }
 
-// Лайв-дроп
-function addLiveDrop(item) {
-  const drop = document.getElementById("live-drop");
-  const img = document.createElement("img");
-  img.src = item.img;
-  drop.prepend(img);
-
-  if (drop.childElementCount > 15) {
-    drop.removeChild(drop.lastChild);
-  }
-}
-
-// Инвентарь
-function updateInventory() {
-  const inv = document.getElementById("inventory");
-  inv.innerHTML = "";
-  inventory.forEach(item => {
-    const img = document.createElement("img");
-    img.src = item.img;
-    inv.appendChild(img);
+// Inventory UI
+function updateInventoryUI(){
+  const invGrid = document.getElementById('inventory-items');
+  invGrid.innerHTML = '';
+  inventory.forEach(item=>{
+    const el = document.createElement('img');
+    el.src = item.img;
+    el.title = item.name;
+    invGrid.appendChild(el);
   });
 }
 
-// Открытие кейса
-function openCase(caseId) {
-  if (caseId === "free-daily") {
-    const rewards = [
-      { name: "+1 Star", value: 1, img: "items/star1.jpg" },
-      { name: "+3 Stars", value: 3, img: "items/star3.jpg" },
-      { name: "+5 Stars", value: 5, img: "items/star5.jpg" },
-      { name: "+10 Stars", value: 10, img: "items/star10.jpg" },
-      { name: "Telegram Gift", value: 20, img: "items/telegram_gift1.jpg" },
-      { name: "Telegram Gift", value: 30, img: "items/telegram_gift2.jpg" },
-      { name: "Telegram Gift", value: 60, img: "items/telegram_gift3.jpg" },
-      { name: "Cake", value: 60, img: "items/telegram_cake.jpg" },
-      { name: "Rocket", value: 80, img: "items/telegram_rocket.jpg" },
-      { name: "Diamond", value: 120, img: "items/telegram_diamond.jpg" },
-      { name: "Snoop Cigar", value: 1547, img: "items/snoop_cigar.jpg" },
-      { name: "Top Hat", value: 3212, img: "items/top_hat.jpg" },
-      { name: "Vintage Cigar", value: 6893, img: "items/vintage_cigar.jpg" }
-    ];
+// Nav buttons
+navMain.addEventListener('click', ()=> switchPage('main'));
+navTop.addEventListener('click', ()=> switchPage('top'));
+navProfile.addEventListener('click', ()=> switchPage('profile'));
 
-    const reward = rewards[Math.floor(Math.random() * rewards.length)];
-    balance += reward.value;
-    inventory.push(reward);
-    updateBalance();
-    updateInventory();
-    addLiveDrop(reward);
-    alert(`You won: ${reward.name}`);
-  }
+function switchPage(page){
+  Object.values(pages).forEach(p=>p.classList.remove('active-page'));
+  pages[page].classList.add('active-page');
+  document.querySelectorAll('.nav-item').forEach(nav=>nav.classList.remove('active'));
+  if(page==='main') navMain.classList.add('active');
+  if(page==='top') navTop.classList.add('active');
+  if(page==='profile') navProfile.classList.add('active');
 }
 
-// Telegram user
-if (tg?.initDataUnsafe?.user) {
+// Set Telegram user info
+if(tg?.initDataUnsafe?.user){
   const user = tg.initDataUnsafe.user;
-  document.getElementById("username").innerText = user.first_name;
-  document.getElementById("profile-username").innerText = user.first_name;
-
-  if (user.photo_url) {
-    document.getElementById("avatar").src = user.photo_url;
-    document.getElementById("profile-avatar").src = user.photo_url;
-  }
+  profileNameEl.innerText = user.first_name || 'Guest';
+  avatarEl.src = profileAvatarEl.src = user.photo_url || 'default-avatar.png';
 }
 
-updateBalance();
-navigate("page-main");
+// Referral link
+document.getElementById('btn-copy-ref').addEventListener('click', ()=>{
+  const walletAddr = 'UQBS6...k5qv';
+  const ref = https://t.me/fiatvalue_bot?start=${walletAddr.slice(-6)};
+  navigator.clipboard.writeText(ref).then(()=>alert('Ссылка скопирована'));
+});
+
+// Deposit button
+document.getElementById('btn-add-balance-top').addEventListener('click', ()=>{
+  alert('Пополнение баланса будет реализовано позже');
+});
+document.getElementById('btn-deposit-profile').addEventListener('click', ()=>{
+  alert('Пополнение баланса будет реализовано позже');
+});
