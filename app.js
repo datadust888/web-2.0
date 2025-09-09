@@ -107,3 +107,62 @@ document.getElementById('btn-add-balance-top').addEventListener('click', ()=>{
 document.getElementById('btn-deposit-profile').addEventListener('click', ()=>{
   alert('Пополнение баланса будет реализовано позже');
 });
+function addLiveDropItem(imgUrl, text) {
+  const el = document.createElement('div');
+  el.className = 'drop-item';
+  el.innerHTML = `<img src="${imgUrl}" style="width:36px;height:36px;border-radius:6px">
+                  <span style="font-size:10px">${text}</span>`;
+  liveDropLine.appendChild(el);
+
+  // Анимация появления
+  requestAnimationFrame(() => el.classList.add('show'));
+
+  if (liveDropLine.children.length > 15)
+    liveDropLine.removeChild(liveDropLine.children[0]);
+}
+if (window.Telegram.WebApp.initDataUnsafe) {
+  const user = window.Telegram.WebApp.initDataUnsafe.user;
+  profileNameEl.innerText = user.first_name || 'Guest';
+  avatarEl.src = profileAvatarEl.src = user.photo_url || 'default-avatar.png';
+}
+
+// Главная кнопка Telegram
+takeBtn.addEventListener('click', () => {
+  window.Telegram.WebApp.MainButton.text = "Открыть кейс";
+  window.Telegram.WebApp.MainButton.show();
+  window.Telegram.WebApp.MainButton.onClick(() => {
+    openFreeCase(); // функция открытия кейса
+    window.Telegram.WebApp.MainButton.hide();
+  });
+});
+let currentBalance = 0;
+const inventory = [];
+
+function openFreeCase() {
+  const item = freeDailyItems[Math.floor(Math.random() * freeDailyItems.length)];
+  currentBalance += item.stars;
+  updateBalanceUI();
+  addLiveDropItem(item.img, item.name);
+  inventory.push(item);
+  updateInventoryUI();
+  freeCaseResult.innerText = Вы получили ${item.name};
+}
+let walletAddr = null;
+
+btnConnectWallet.addEventListener('click', () => {
+  walletAddr = "UQBS6...k5qv"; // В будущем использовать реальный API
+  document.getElementById('wallet-address').innerText = walletAddr;
+  refLinkInput.value = https://t.me/fiatvalue_bot?start=${walletAddr.slice(-6)};
+});
+
+btnDisconnectWallet.addEventListener('click', () => {
+  walletAddr = null;
+  document.getElementById('wallet-address').innerText = '—';
+  refLinkInput.value = '';
+});
+function switchPage(page) {
+  Object.values(pages).forEach(p => p.classList.remove('active-page'));
+  pages[page].classList.add('active-page');
+  document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+  document.getElementById('nav-' + page).classList.add('active');
+}

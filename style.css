@@ -54,3 +54,24 @@ body {padding-bottom:96px;}
 .bottom-nav {position:fixed; bottom:0; left:0; right:0; display:flex; justify-content:space-around; padding:12px 0; backdrop-filter:blur(6px); background:rgba(0,0,0,0.6);}
 .nav-item {color:var(--muted); font-weight:600; cursor:pointer;}
 .nav-item.active {color:var(--accent);}
+.drop-item {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.drop-item.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  padding: 12px 0;
+  border-radius: 16px 16px 0 0;
+}
