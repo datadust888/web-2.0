@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <title>FiatValue Cases</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FiatValue</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -11,45 +11,78 @@
   <div id="background"></div>
 
   <div class="app">
-    <!-- profile -->
-    <div class="profile">
-      <img id="avatar" src="/static/default-avatar.png" alt="avatar"/>
-      <div class="info">
-        <div id="name">Guest</div>
-        <div id="balance">0 ⭐</div>
-      </div>
-    </div>
 
-    <!-- free case -->
-    <div class="free-case">
-      <div class="case-preview">
-        <img id="case-img" src="/static/free-case.jpg" alt="case" />
-        <div class="case-title" id="case-title">Basic Case</div>
-      </div>
-      <div class="case-controls">
-        <div id="free-timer">Loading timer…</div>
-        <button id="btn-open" class="btn-primary">Open free case</button>
-      </div>
-    </div>
+    <!-- TOP NAV (Main / Weekly / Profile) -->
+    <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+      <button class="nav-btn active" id="nav-main" data-target="main-screen" title="Main">
+        <!-- inline SVG icon (home) -->
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3 2 12h3v8h6v-5h2v5h6v-8h3z"/></svg>
+        <span>Main</span>
+      </button>
+      <button class="nav-btn" id="nav-weekly" data-target="weekly-screen" title="Weekly">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 11h10v2H7zM4 7h16v2H4zM4 15h10v2H4z"/></svg>
+        <span>Weekly</span>
+      </button>
+      <button class="nav-btn" id="nav-profile" data-target="profile-screen" title="Profile">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
 
-    <!-- tiles -->
-    <div class="tiles">
-      <button id="btn-top" class="tile-btn">Top</button>
-      <button id="btn-ref" class="tile-btn">Referral</button>
-    </div>
+    <!-- MAIN SCREEN -->
+    <section id="main-screen" class="screen">
+      <div class="profile-row">
+        <img id="avatar" class="avatar" src="/static/default-avatar.png" alt="avatar">
+        <div class="profile-info">
+          <div id="name" class="profile-name">Guest</div>
+          <div id="balance" class="profile-balance">0 ⭐</div>
+        </div>
+      </div>
 
-    <!-- TOP screen -->
-    <div id="top-screen" style="display:none;">
+      <div class="free-case">
+        <div class="case-preview">
+          <img id="case-img" src="/static/free-case.jpg" alt="case preview">
+          <div id="case-title" class="case-title">Basic Case</div>
+        </div>
+        <div class="case-controls">
+          <div id="free-timer" class="free-timer">Loading timer…</div>
+          <div class="case-actions">
+            <button id="btn-open" class="btn btn-primary">Open free case</button>
+            <button id="btn-buy" class="btn btn-secondary">Buy cases</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tiles">
+        <button id="btn-top" class="tile">Top</button>
+        <button id="btn-ref" class="tile">Referral</button>
+      </div>
+
+      <div id="live-drop" class="live-drop">Live drop will appear here</div>
+      <pre id="result" class="result"></pre>
+    </section>
+
+    <!-- WEEKLY SCREEN -->
+    <section id="weekly-screen" class="screen hidden">
       <div class="top-header">
         <button id="btn-weekly" class="tab active">Weekly</button>
         <button id="btn-friends" class="tab">Friends</button>
       </div>
       <div id="top-list" class="top-list">Loading...</div>
-      <button id="top-back" class="tile-btn">Back</button>
-    </div>
+      <button id="top-back" class="btn btn-ghost">Back</button>
+    </section>
 
-    <pre id="result" style="white-space:pre-wrap;"></pre>
-    <div id="live-drop"></div>
+    <!-- PROFILE SCREEN -->
+    <section id="profile-screen" class="screen hidden">
+      <h2>Profile</h2>
+      <div id="profile-details">
+        <img id="profile-avatar" class="avatar-large" src="/static/default-avatar.png" alt="avatar large">
+        <div id="profile-name" class="profile-name">Guest</div>
+        <div id="profile-stats">Spent: <span id="profile-spent">0</span> — Balance: <span id="profile-balance">0</span> ⭐</div>
+      </div>
+      <button id="profile-back" class="btn btn-ghost">Back</button>
+    </section>
+
   </div>
 
   <script src="/app.js"></script>
