@@ -5,20 +5,17 @@ const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const path = require('path');
-const crypto = require('crypto');
 
 const app = express();
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "web"))); // serve web/ at root
+app.use(express.static(path.join(__dirname, "web")));
 
 const DB_FILE = path.join(__dirname, "db.sqlite");
-const BOT_TOKEN = process.env.BOT_TOKEN || "";
 
 let db;
 (async () => {
   db = await open({ filename: DB_FILE, driver: sqlite3.Database });
   await db.exec("PRAGMA journal_mode=WAL;");
-  // migrations
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
@@ -56,50 +53,13 @@ let db;
   console.log("DB ready");
 })();
 
-// ---------- helpers ----------
-function asInt(v) { const n = parseInt(v); return Number.isFinite(n) ? n : 0; }
+function asInt(v){ const n = parseInt(v); return Number.isFinite(n) ? n : 0; }
 
-// validate Telegram WebApp initData (optional) — pass init_data string from client (tg.initData)
-function validateInitData(initData) {
-  if (!initData || !BOT_TOKEN) return false;
-  // initData is like "user=...&auth_date=...&hash=..."
-  const params = {};
-  initData.split("&").forEach(pair => {
-    const [k, v] = pair.split("=");
-    if (k && v !== undefined) params[k] = decodeURIComponent(v);
-  });
-  if (!params.hash) return false;
-  const hashReceived = params.hash;
-  delete params.hash;
-  const dataCheckArr = Object.keys(params).sort().map(k => `${k}=${params[k]}`);
-  const dataCheckString = dataCheckArr.join("\n");
-  const secretKey = crypto.createHash("sha256").update(BOT_TOKEN).digest();
-  const hmac = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
-  return hmac === hashReceived;
-}
-
-// ---------- API ----------
-// POST /api/profile { init_data? , user_id? }
+// POST /api/profile { init_data?, user_id?, username?, display_name?, avatar_url? }
 app.post("/api/profile", async (req, res) => {
   try {
-    const { init_data } = req.body;
-    let uid = asInt(req.body.user_id || 0);
-    // if init_data provided and valid, try to extract user id from it
-    if (!uid && init_data && validateInitData(init_data)) {
-      // init_data can contain user param as JSON; try parse
-      const parts = {};
-      init_data.split("&").forEach(p => {
-        const [k, v] = p.split("="); if (k && v !== undefined) parts[k] = decodeURIComponent(v);
-      });
-      if (parts.user) {
-        try {
-          const userObj = JSON.parse(parts.user);
-          uid = asInt(userObj.id);
-        } catch(e){}
-      }
-    }
-    if (!uid) return res.json({ ok: false, error: "no user_id" });
-    // optionally update profile fields if provided
+    const uid = asInt(req.body.user_id || 0);
+    if (!uid) return res.json({ ok:false, error: "no user_id" });
     const username = req.body.username || null;
     const display_name = req.body.display_name || null;
     const avatar_url = req.body.avatar_url || null;
@@ -107,16 +67,16 @@ app.post("/api/profile", async (req, res) => {
     const row = await db.get("SELECT id, username, display_name, avatar_url, balance, spent, last_free FROM users WHERE id = ?", uid);
     if (!row) {
       await db.run("INSERT INTO users (id, username, display_name, avatar_url) VALUES (?,?,?,?)", uid, username, display_name, avatar_url);
-      return res.json({ ok: true, profile: { id: uid, username, display_name, avatar_url, balance:0, spent:0, last_free:0 }});
+      return res.json({ ok:true, profile: { id: uid, username, display_name, avatar_url, balance:0, spent:0, last_free:0 }});
     } else {
       if (username  display_name  avatar_url) {
         await db.run("UPDATE users SET username = COALESCE(?, username), display_name = COALESCE(?, display_name), avatar_url = COALESCE(?, avatar_url) WHERE id = ?",
-          username, display_name, avatar_url, uid);
+                     username, display_name, avatar_url, uid);
       }
       const fresh = await db.get("SELECT id, username, display_name, avatar_url, balance, spent, last_free FROM users WHERE id = ?", uid);
-      return res.json({ ok: true, profile: fresh });
+      return res.json({ ok:true, profile: fresh });
     }
-  } catch (e) { console.error(e); res.status(500).json({ ok:false, error: e.message }); }
+  } catch(e){ console.error(e); res.status(500).json({ ok:false, error: e.message }); }
 });
 
 // POST /api/register_ref { referrer, referred }
@@ -129,34 +89,23 @@ app.post("/api/register_ref", async (req, res) => {
     if (r && r.referrer) return res.json({ ok:false, error:"already has referrer" });
     await db.run("UPDATE users SET referrer = ? WHERE id = ?", ref, referred);
     return res.json({ ok:true });
-  } catch(e){ console.error(e); res.status(500).json({ok:false, error:e.message});}
+  } catch(e){ console.error(e); res.status(500).json({ok:false, error:e.message}); }
 });
 
-// POST /api/open_case { init_data? , user_id, case_slug }
+// POST /api/open_case { user_id, case_slug }
 app.post("/api/open_case", async (req, res) => {
   try {
-    const { init_data } = req.body;
-    let uid = asInt(req.body.user_id || 0);
-    if (!uid && init_data && validateInitData(init_data)) {
-      const parts = {};
-      init_data.split("&").forEach(p => {
-        const [k, v] = p.split("="); if (k && v !== undefined) parts[k] = decodeURIComponent(v);
-      });
-      if (parts.user) {
-        try { uid = asInt(JSON.parse(parts.user).id); } catch(e){}
-      }
-    }
-    if (!uid) return res.json({ ok:false, error:"no user_id" });
-
+    const uid = asInt(req.body.user_id || 0);
     const slug = req.body.case_slug || "free";
+    if (!uid) return res.json({ ok:false, error: "no user_id" });
+
     const now = Math.floor(Date.now()/1000);
     const row = await db.get("SELECT last_free FROM users WHERE id = ?", uid);
-    const last_free = row ? (row.last_free || 0) : 0;
-    if (slug === "free" && (now - last_free) < 24*3600) {
-      return res.json({ ok:false, error:"cooldown" });
+    const last_free = row ? (row.last_free || 0) : 0;if (slug === "free" && (now - last_free) < 24*3600) {
+      return res.json({ ok:false, error: "cooldown" });
     }
 
-    // --- drop table: customize weights and items according to your design ---
+    // drop table (example weights) — customize
     const drops = [
       { type: "stars", amount: 1, weight: 3000 },
       { type: "stars", amount: 5, weight: 2000 },
@@ -164,11 +113,11 @@ app.post("/api/open_case", async (req, res) => {
       { type: "item", item_key: "bear", item_name: "Telegram Bear", weight: 500 },
       { type: "item", item_key: "nft_cigar", item_name: "NFT Cigar (20 TON)", weight: 5 }
     ];
-    const total = drops.reduce((s,d) => s + d.weight, 0);
-    let r = Math.random()*total, upto = 0, pick = null;
+    const total = drops.reduce((s,d)=>s+d.weight,0);
+    let r = Math.random()*total, upto=0, pick=null;
     for (const d of drops) { upto += d.weight; if (r <= upto) { pick = d; break; } }
 
-    if (!pick) return res.json({ ok:false, error:"no prize" });
+    if (!pick) return res.json({ ok:false, error: "no prize" });
 
     if (pick.type === "stars") {
       const amt = asInt(pick.amount);
@@ -181,7 +130,8 @@ app.post("/api/open_case", async (req, res) => {
       await db.run("UPDATE users SET last_free = ? WHERE id = ?", now, uid);
       return res.json({ ok:true, prize: { type:"item", item_name: pick.item_name } });
     }
-  } catch(e) { console.error(e); res.status(500).json({ ok:false, error: e.message }); }
+
+  } catch(e){ console.error(e); res.status(500).json({ ok:false, error: e.message }); }
 });
 
 // GET /api/top100?period=weekly
@@ -222,7 +172,7 @@ app.get("/api/topreferrals", async (req, res) => {
   } catch(e){ console.error(e); res.status(500).json({ok:false, error:e.message}); }
 });
 
-// GET /api/due_reminders -> users to message (also updates last_reminder)
+// GET /api/due_reminders -> mark and return users to notify
 app.get("/api/due_reminders", async (req, res) => {
   try {
     const now = Math.floor(Date.now()/1000);
@@ -240,10 +190,8 @@ app.get("/api/due_reminders", async (req, res) => {
   } catch(e){ console.error(e); res.status(500).json({ok:false, error:e.message}); }
 });
 
-// health
-app.get("/health", (req,res) => res.json({ ok:true }));
+app.get("/health", (req,res)=>res.json({ ok:true }));
 
-// serve index
 app.get("/", (req,res) => res.sendFile(path.join(__dirname, "web", "index.html")));
 
 const PORT = process.env.PORT || 8000;
