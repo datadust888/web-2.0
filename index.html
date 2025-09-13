@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>FiatValue — Cases</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- lightweight confetti lib (cdn) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <div id="app" class="app-root">
-    <!-- TOP BAR -->
     <header class="topbar">
       <div class="top-left">
         <img id="profileAvatar" class="avatar" src="default-avatar.png" alt="avatar"/>
@@ -19,41 +17,32 @@
           <div id="walletAddr" class="wallet-addr">—</div>
         </div>
       </div>
-
       <div class="top-right">
         <div class="balance-box">
-          <div class="balance-ton" id="balanceTon">0.0000 TON</div>
-          <div class="balance-stars" id="balanceStars">0.00 ⭐</div>
-          <button id="btnAddBalance" class="plus-btn" title="Пополнить">+</button>
+          <div id="balanceTon" class="balance-ton">0.0000 TON</div>
+          <div id="balanceStars" class="balance-stars">0.00 ⭐</div>
+          <button id="btnAddBalance" class="plus-btn">+</button>
         </div>
       </div>
     </header>
 
-    <!-- LIVE DROP strip -->
     <section id="liveDrop" class="live-drop" aria-label="Live drops"></section>
 
-    <!-- MAIN CONTENT -->
     <main class="main">
-      <!-- pages -->
       <div id="page-main" class="page active">
         <div class="cases-grid">
-          <!-- Free daily card -->
           <article class="case-card big" id="card-free">
-            <div class="case-header">
-              <div class="case-badge">FREE DAILY</div>
-              <div class="case-price">0 ⭐</div>
-            </div>
+            <div class="case-badge">FREE DAILY</div>
             <div class="case-media">
               <img id="freePreview" src="items/freecase.jpg" alt="Free Daily preview" />
             </div>
             <div class="case-title">Free Daily</div>
-            <div class="case-sub" id="freeTimer">Loading timer...</div>
+            <div id="freeTimer" class="case-sub">Loading timer...</div>
             <div class="case-actions">
               <button id="openFreeBtn" class="btn-primary">Open</button>
             </div>
           </article>
 
-          <!-- Paid cases -->
           <article class="case-card" data-slug="case_0_1_ton">
             <div class="case-badge small">0.1 TON</div>
             <div class="case-media placeholder">0.1</div>
@@ -71,7 +60,7 @@
           </article>
         </div>
 
-        <div id="freeCaseResult" class="result-area">Result will appear here</div>
+        <div id="freeCaseResult" class="result-area"></div>
       </div>
 
       <div id="page-top" class="page">
@@ -109,9 +98,7 @@
         <div class="inventory-section">
           <h3>Inventory</h3>
           <div id="inventory" class="inventory-grid"></div>
-        </div>
-
-        <div class="referral-section">
+        </div><div class="referral-section">
           <label>Referral link</label>
           <div class="ref-row">
             <input id="refLink" readonly />
@@ -121,19 +108,14 @@
       </div>
     </main>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
-      <button class="nav-item active" data-page="main">
-        <!-- SVG Home icon -->
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20V11h16v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <button class="nav-item active" data-page="main" id="navMain">
         <span>Cases</span>
       </button>
-      <button class="nav-item" data-page="top">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2v20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5 11h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <button class="nav-item" data-page="top" id="navTop">
         <span>Top</span>
       </button>
-      <button class="nav-item" data-page="profile">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c1.5-4 7-4 8-4s6.5 0 8 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <button class="nav-item" data-page="profile" id="navProfile">
         <span>Profile</span>
       </button>
     </nav>
