@@ -1,102 +1,145 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>FiatValue Bot Cases</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>FiatValue — Cases</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- lightweight confetti lib (cdn) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <div class="app">
-
-    <!-- Верхняя строка: аватар и баланс -->
-    <header class="top-bar">
-      <div class="left-area">
-        <img id="avatar" src="default-avatar.png" alt="avatar" class="avatar-small">
+  <div id="app" class="app-root">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="top-left">
+        <img id="profileAvatar" class="avatar" src="default-avatar.png" alt="avatar"/>
+        <div class="user-block">
+          <div id="profileName" class="user-name">Guest</div>
+          <div id="walletAddr" class="wallet-addr">—</div>
+        </div>
       </div>
-      <div class="right-area">
+
+      <div class="top-right">
         <div class="balance-box">
-          <span id="balance">0.00 ⭐️</span>
-          <button id="btn-add-balance-top">+</button>
+          <div class="balance-ton" id="balanceTon">0.0000 TON</div>
+          <div class="balance-stars" id="balanceStars">0.00 ⭐</div>
+          <button id="btnAddBalance" class="plus-btn" title="Пополнить">+</button>
         </div>
       </div>
     </header>
 
-    <!-- LIVE DROP -->
-    <section class="live-drop" id="live-drop-line"></section>
+    <!-- LIVE DROP strip -->
+    <section id="liveDrop" class="live-drop" aria-label="Live drops"></section>
 
-    <!-- Главная страница с кейсами -->
-    <main class="pages">
-      <section id="page-main" class="page active-page">
-        <div id="casesGrid" class="cases">
-          <!-- Бесплатный кейс -->
-          <div id="free-case-card" class="case big" data-price="0" data-name="Free Daily">
-            <div class="badge hot">FREE</div>
-            <div class="case-preview"><img src="free_case.jpg" alt="Free Daily"></div>
-            <div class="case-footer">
-              <span class="pill">0 ⭐️</span>
-              <span>Free Daily</span>
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <!-- pages -->
+      <div id="page-main" class="page active">
+        <div class="cases-grid">
+          <!-- Free daily card -->
+          <article class="case-card big" id="card-free">
+            <div class="case-header">
+              <div class="case-badge">FREE DAILY</div>
+              <div class="case-price">0 ⭐</div>
             </div>
+            <div class="case-media">
+              <img id="freePreview" src="items/freecase.jpg" alt="Free Daily preview" />
+            </div>
+            <div class="case-title">Free Daily</div>
+            <div class="case-sub" id="freeTimer">Loading timer...</div>
+            <div class="case-actions">
+              <button id="openFreeBtn" class="btn-primary">Open</button>
+            </div>
+          </article>
+
+          <!-- Paid cases -->
+          <article class="case-card" data-slug="case_0_1_ton">
+            <div class="case-badge small">0.1 TON</div>
+            <div class="case-media placeholder">0.1</div>
+            <div class="case-title">Small Case</div>
+            <div class="case-sub">Pepe / Durov cap rare</div>
+            <button class="btn-outline open-paid" data-slug="case_0_1_ton">Open</button>
+          </article>
+
+          <article class="case-card" data-slug="case_0_5_ton">
+            <div class="case-badge small">0.5 TON</div>
+            <div class="case-media placeholder">0.5</div>
+            <div class="case-title">Premium Case</div>
+            <div class="case-sub">High TON prizes</div>
+            <button class="btn-outline open-paid" data-slug="case_0_5_ton">Open</button>
+          </article>
+        </div>
+
+        <div id="freeCaseResult" class="result-area">Result will appear here</div>
+      </div>
+
+      <div id="page-top" class="page">
+        <div class="page-header">
+          <h2>Top-100 (7 days)</h2>
+          <div class="toggle-group" id="topToggle">
+            <button class="toggle active" data-mode="weekly">Weekly</button>
+            <button class="toggle" data-mode="friends">Friends</button>
           </div>
         </div>
-        <div id="free-case-result" class="result-area">Нажмите на кейс, чтобы открыть</div>
-      </section>
+        <div id="topList" class="leaderboard"></div>
+      </div>
 
-      <!-- Топ-100 -->
-      <section id="page-top" class="page">
-        <h2>Топ пользователей (7 дней)</h2>
-        <div id="leaderboardList" class="leaderboard"></div>
-      </section>
-
-      <!-- Профиль -->
-      <section id="page-profile" class="page">
-        <div class="profile-header">
-          <img id="profile-avatar" src="default-avatar.png" alt="profile avatar">
+      <div id="page-profile" class="page">
+        <div class="profile-pane">
+          <img id="profileAvatarBig" src="default-avatar.png" class="avatar-large" />
           <div class="profile-info">
-            <div id="profile-name">Guest</div>
-            <div class="profile-sub">Кошелёк: <span id="wallet-address">—</span></div>
+            <div id="profileNameBig" class="user-name-large">Guest</div>
+            <div class="wallet-row">
+              <div id="profileWallet" class="wallet-pill">—</div>
+              <button id="btnCopyWallet" class="btn-ghost small">Copy</button>
+            </div>
           </div>
         </div>
 
-        <div class="profile-controls">
-          <div class="profile-balance">
-            <span>Баланс</span>
-            <div class="balance-box small">
-              <span id="profile-balance">0.00 ⭐️</span>
-              <button id="btn-deposit-profile" class="btn-ghost">Пополнить</button>
-            </div>
-          </div>
-
-          <div class="wallet-actions">
-            <button id="btn-connect-wallet" class="btn-ghost">Подключить кошелёк</button>
-            <button id="btn-disconnect-wallet" class="btn-ghost">Отключить</button>
-          </div>
-
-          <div class="referral">
-            <label>Реферальная ссылка</label>
-            <div class="ref-row">
-              <input id="ref-link" readonly>
-              <button id="btn-copy-ref" class="btn-ghost">Скопировать</button>
-            </div>
-          </div>
-
-          <div class="inventory">
-            <h4>Инвентарь</h4>
-            <div id="inventory-items" class="inventory-grid"></div>
+        <div class="profile-balance-card">
+          <div>Balance</div>
+          <div class="balance-row">
+            <div id="profileBalanceStars" class="profile-balance-stars">0.00 ⭐</div>
+            <div id="profileBalanceTon" class="profile-balance-ton">0.0000 TON</div>
+            <button id="btnDeposit" class="btn-primary small">Deposit</button>
           </div>
         </div>
-      </section>
+
+        <div class="inventory-section">
+          <h3>Inventory</h3>
+          <div id="inventory" class="inventory-grid"></div>
+        </div>
+
+        <div class="referral-section">
+          <label>Referral link</label>
+          <div class="ref-row">
+            <input id="refLink" readonly />
+            <button id="btnCopyRef" class="btn-ghost">Copy</button>
+          </div>
+        </div>
+      </div>
     </main>
 
-    <!-- Нижнее меню -->
-    <nav class="bottom-nav">
-      <div id="nav-main" class="nav-item active">Cases</div>
-      <div id="nav-top" class="nav-item">Top-100</div>
-      <div id="nav-profile" class="nav-item">Profile</div>
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+      <button class="nav-item active" data-page="main">
+        <!-- SVG Home icon -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20V11h16v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Cases</span>
+      </button>
+      <button class="nav-item" data-page="top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2v20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5 11h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span>Top</span>
+      </button>
+      <button class="nav-item" data-page="profile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c1.5-4 7-4 8-4s6.5 0 8 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Profile</span>
+      </button>
     </nav>
-
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script src="app.js" defer></script>
 </body>
 </html>
