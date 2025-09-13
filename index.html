@@ -1,127 +1,57 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>FiatValue — Cases</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <meta charset="utf-8">
+  <title>FiatValue Cases</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div id="app" class="app-root">
-    <header class="topbar">
-      <div class="top-left">
-        <img id="profileAvatar" class="avatar" src="default-avatar.png" alt="avatar"/>
-        <div class="user-block">
-          <div id="profileName" class="user-name">Guest</div>
-          <div id="walletAddr" class="wallet-addr">—</div>
-        </div>
+  <div id="background"></div>
+
+  <div class="app">
+    <!-- profile -->
+    <div class="profile">
+      <img id="avatar" src="/static/default-avatar.png" alt="avatar"/>
+      <div class="info">
+        <div id="name">Guest</div>
+        <div id="balance">0 ⭐</div>
       </div>
-      <div class="top-right">
-        <div class="balance-box">
-          <div id="balanceTon" class="balance-ton">0.0000 TON</div>
-          <div id="balanceStars" class="balance-stars">0.00 ⭐</div>
-          <button id="btnAddBalance" class="plus-btn">+</button>
-        </div>
+    </div>
+
+    <!-- free case -->
+    <div class="free-case">
+      <div class="case-preview">
+        <img id="case-img" src="/static/free-case.jpg" alt="case" />
+        <div class="case-title" id="case-title">Basic Case</div>
       </div>
-    </header>
-
-    <section id="liveDrop" class="live-drop" aria-label="Live drops"></section>
-
-    <main class="main">
-      <div id="page-main" class="page active">
-        <div class="cases-grid">
-          <article class="case-card big" id="card-free">
-            <div class="case-badge">FREE DAILY</div>
-            <div class="case-media">
-              <img id="freePreview" src="items/freecase.jpg" alt="Free Daily preview" />
-            </div>
-            <div class="case-title">Free Daily</div>
-            <div id="freeTimer" class="case-sub">Loading timer...</div>
-            <div class="case-actions">
-              <button id="openFreeBtn" class="btn-primary">Open</button>
-            </div>
-          </article>
-
-          <article class="case-card" data-slug="case_0_1_ton">
-            <div class="case-badge small">0.1 TON</div>
-            <div class="case-media placeholder">0.1</div>
-            <div class="case-title">Small Case</div>
-            <div class="case-sub">Pepe / Durov cap rare</div>
-            <button class="btn-outline open-paid" data-slug="case_0_1_ton">Open</button>
-          </article>
-
-          <article class="case-card" data-slug="case_0_5_ton">
-            <div class="case-badge small">0.5 TON</div>
-            <div class="case-media placeholder">0.5</div>
-            <div class="case-title">Premium Case</div>
-            <div class="case-sub">High TON prizes</div>
-            <button class="btn-outline open-paid" data-slug="case_0_5_ton">Open</button>
-          </article>
-        </div>
-
-        <div id="freeCaseResult" class="result-area"></div>
+      <div class="case-controls">
+        <div id="free-timer">Loading timer…</div>
+        <button id="btn-open" class="btn-primary">Open free case</button>
       </div>
+    </div>
 
-      <div id="page-top" class="page">
-        <div class="page-header">
-          <h2>Top-100 (7 days)</h2>
-          <div class="toggle-group" id="topToggle">
-            <button class="toggle active" data-mode="weekly">Weekly</button>
-            <button class="toggle" data-mode="friends">Friends</button>
-          </div>
-        </div>
-        <div id="topList" class="leaderboard"></div>
+    <!-- tiles -->
+    <div class="tiles">
+      <button id="btn-top" class="tile-btn">Top</button>
+      <button id="btn-ref" class="tile-btn">Referral</button>
+    </div>
+
+    <!-- TOP screen -->
+    <div id="top-screen" style="display:none;">
+      <div class="top-header">
+        <button id="btn-weekly" class="tab active">Weekly</button>
+        <button id="btn-friends" class="tab">Friends</button>
       </div>
+      <div id="top-list" class="top-list">Loading...</div>
+      <button id="top-back" class="tile-btn">Back</button>
+    </div>
 
-      <div id="page-profile" class="page">
-        <div class="profile-pane">
-          <img id="profileAvatarBig" src="default-avatar.png" class="avatar-large" />
-          <div class="profile-info">
-            <div id="profileNameBig" class="user-name-large">Guest</div>
-            <div class="wallet-row">
-              <div id="profileWallet" class="wallet-pill">—</div>
-              <button id="btnCopyWallet" class="btn-ghost small">Copy</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-balance-card">
-          <div>Balance</div>
-          <div class="balance-row">
-            <div id="profileBalanceStars" class="profile-balance-stars">0.00 ⭐</div>
-            <div id="profileBalanceTon" class="profile-balance-ton">0.0000 TON</div>
-            <button id="btnDeposit" class="btn-primary small">Deposit</button>
-          </div>
-        </div>
-
-        <div class="inventory-section">
-          <h3>Inventory</h3>
-          <div id="inventory" class="inventory-grid"></div>
-        </div><div class="referral-section">
-          <label>Referral link</label>
-          <div class="ref-row">
-            <input id="refLink" readonly />
-            <button id="btnCopyRef" class="btn-ghost">Copy</button>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
-      <button class="nav-item active" data-page="main" id="navMain">
-        <span>Cases</span>
-      </button>
-      <button class="nav-item" data-page="top" id="navTop">
-        <span>Top</span>
-      </button>
-      <button class="nav-item" data-page="profile" id="navProfile">
-        <span>Profile</span>
-      </button>
-    </nav>
+    <pre id="result" style="white-space:pre-wrap;"></pre>
+    <div id="live-drop"></div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="app.js" defer></script>
+  <script src="/app.js"></script>
 </body>
 </html>
