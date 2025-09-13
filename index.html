@@ -1,62 +1,115 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FiatValue Cases</title>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FiatValue Cases</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
-    <div class="profile">
-      <img src="items/profile.svg" alt="Profile" class="profile-icon"/>
-      <span id="username">Гость</span>
+<div class="app">
+
+  <!-- HEADER: профиль и баланс -->
+  <header class="top-bar">
+    <div class="left-area">
+      <img id="avatar" src="default-avatar.png" alt="avatar">
+      <span id="username">Guest</span>
     </div>
-    <div class="wallet-box" onclick="copyWallet()">
-      <span id="wallet">EQC123...XYZ</span>
-    </div>
-    <div class="balance">
-      <span id="balance">0 TON</span>
+    <div class="right-area">
+      <span id="balance">0 ⭐️</span>
+      <button id="btn-add-balance-top">+</button>
     </div>
   </header>
 
   <!-- LIVE DROP -->
-  <section class="live-drop">
-    <h2>Live Drop</h2>
-    <div id="drop-feed"></div>
-  </section>
+  <section class="live-drop" id="live-drop-line"></section>
 
-  <!-- CASES -->
-  <main>
-    <div class="cases">
-      <!-- FREE DAILY CASE -->
-      <div id="free-case-card" class="case" data-price="0" data-name="Free Case">
-        <img class="case-preview" src="items/free-case.jpg" alt="Free Case"/>
-        <div id="free-timer" class="case-footer">
-          <span class="pill">0 ⭐️</span>
-          <span>Free Daily</span>
+  <!-- PAGES -->
+  <main class="pages">
+
+    <!-- MAIN PAGE -->
+    <section id="page-main" class="page active-page">
+      <div id="casesGrid" class="cases">
+
+        <!-- FREE DAILY -->
+        <div class="case big" id="free-case" data-price="0" data-name="Free Daily">
+          <div class="case-preview">
+            <img src="items/free-case.jpg" alt="Free Case">
+          </div>
+          <div class="case-footer">
+            <span>Free Daily</span>
+            <span id="free-case-timer"></span>
+          </div>
+        </div>
+
+        <!-- 0.1 TON CASE -->
+        <div class="case" data-price="0.1" data-name="0.1 TON Case">
+          <div class="case-preview">📦</div>
+          <div class="case-footer"><span>0.1 TON</span></div>
+        </div>
+
+        <!-- 0.5 TON CASE -->
+        <div class="case" data-price="0.5" data-name="0.5 TON Case">
+          <div class="case-preview">📦</div>
+          <div class="case-footer"><span>0.5 TON</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- WEEKLY / TOP PAGE -->
+    <section id="page-weekly" class="page">
+      <h2>Weekly Leaderboard</h2>
+      <div id="leaderboardList" class="leaderboard"></div>
+    </section>
+
+    <!-- PROFILE PAGE -->
+    <section id="page-profile" class="page">
+      <div class="profile-header">
+        <img id="profile-avatar" src="default-avatar.png" alt="profile avatar">
+        <div class="profile-info">
+          <div id="profile-name">Guest</div>
+          <div>Wallet: <span id="wallet-address">—</span></div>
         </div>
       </div>
-    </div>
+
+      <div class="profile-controls">
+        <div class="profile-balance">
+          <span>Balance</span>
+          <div class="balance-box small">
+            <span id="profile-balance">0 ⭐️</span>
+            <button id="btn-deposit-profile" class="btn-ghost">Deposit</button>
+          </div>
+        </div>
+
+        <div class="wallet-actions">
+          <button id="btn-connect-wallet" class="btn-ghost">Connect Wallet</button>
+          <button id="btn-disconnect-wallet" class="btn-ghost">Disconnect</button>
+        </div>
+
+        <div class="inventory">
+          <h4>Inventory</h4>
+          <div id="inventory-items" class="inventory-grid"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- NAVIGATION -->
+  <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav">
     <div id="nav-main" class="nav-item active">
-      <img src="items/main.svg" alt="Main" class="nav-icon"/>
-      <span>Главная</span>
+      <img src="icons/main.png"><span>Main</span>
     </div>
-    <div id="nav-top" class="nav-item">
-      <img src="items/weekly.svg" alt="Weekly" class="nav-icon"/>
-      <span>Weekly</span>
+    <div id="nav-weekly" class="nav-item">
+      <img src="icons/weekly.png"><span>Weekly</span>
     </div>
-    <div id="nav-profile" class="nav-item">
-      <img src="items/profile.svg" alt="Profile" class="nav-icon"/>
-      <span>Профиль</span>
+    <div id="nav-profile-btn" class="nav-item">
+      <img src="icons/profile.png"><span>Profile</span>
     </div>
   </nav>
+</div>
 
-  <script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>
