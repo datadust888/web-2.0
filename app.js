@@ -1,73 +1,52 @@
+// Telegram WebApp
 const tg = window.Telegram?.WebApp;
+if(tg?.ready) tg.ready();
 if(tg?.expand) tg.expand();
 
-const usernameEl = document.getElementById('username');
-const avatarEl = document.getElementById('avatar');
-const balanceEl = document.getElementById('balance');
-const profileNameEl = document.getElementById('profile-name');
-const profileAvatarEl = document.getElementById('profile-avatar');
-const profileBalanceEl = document.getElementById('profile-balance');
-const liveDropLine = document.getElementById('live-drop-line');
-const freeCase = document.getElementById('free-case');
-const freeCaseTimer = document.getElementById('free-case-timer');
-
-let currentBalance = 0;
-let freeCaseAvailable = true;
-
-// Отображение Telegram данных
-if(tg?.initDataUnsafe?.user){
-  const user = tg.initDataUnsafe.user;
-  usernameEl.innerText = user.first_name || 'Guest';
-  profileNameEl.innerText = user.first_name || 'Guest';
-  if(user.photo_url){avatarEl.src = user.photo_url; profileAvatarEl.src = user.photo_url;}
-}
-
-// Навигация
+// DOM
 const pages = {
   main: document.getElementById('page-main'),
   weekly: document.getElementById('page-weekly'),
   profile: document.getElementById('page-profile')
 };
-document.getElementById('nav-main').onclick = ()=>{showPage('main')};
-document.getElementById('nav-weekly').onclick = ()=>{showPage('weekly')};
-document.getElementById('nav-profile-btn').onclick = ()=>{showPage('profile')};
-function showPage(page){for(let p in pages){pages[p].classList.remove('active-page');} pages[page].classList.add('active-page');}
+const navMain = document.getElementById('nav-main');
+const navWeekly = document.getElementById('nav-weekly');
+const navProfile = document.getElementById('nav-profile');
+const casesGrid = document.getElementById('casesGrid');
+const caseResult = document.getElementById('case-result');
+const liveDropLine = document.getElementById('live-drop-line');
+const balanceEl = document.getElementById('balance');
+const profileBalanceEl = document.getElementById('profile-balance');
+const usernameEl = document.getElementById('username');
+const avatarEl = document.getElementById('avatar');
+const profileNameEl = document.getElementById('profile-name');
 
-// FREE CASE открытие
-freeCase.onclick = ()=>{
-  if(!freeCaseAvailable){
-    alert('Free case already opened today!');
-    return;
-  }
-  // Проверка подписки на канал
-  const confirmSub = confirm('Подпишитесь на канал @fiatvalue чтобы открыть кейс.');
-  if(!confirmSub) return;
+let currentBalance = 0;
+let inventory = [];
 
-  // Генерация дропа
-  const rewards = [
-    {name:"+1 ⭐️", amount:1}, {name:"+3 ⭐️", amount:3}, {name:"+5 ⭐️", amount:5},
-    {name:"Telegram Gift 🎁", amount:10}, {name:"Snoop Cigar", amount:1547}
-  ];
-  const reward = rewards[Math.floor(Math.random()*rewards.length)];
-  alert(`Вы получили: ${reward.name}`);
-  currentBalance += reward.amount;
-  updateBalanceUI();
-  freeCaseAvailable=false;
+// MOCK: Leaderboard
+const leaderboard = [
+  {name:'Alice',amount:15200},{name:'Bob',amount:12050},{name:'Charlie',amount:10120}
+];
+
+// NAVIGATION
+function showPage(page){
+  Object.values(pages).forEach(p=>p.classList.remove('active-page'));
+  page.classList.add('active-page');
 }
+navMain.onclick = ()=>showPage(pages.main);
+navWeekly.onclick = ()=>showPage(pages.weekly);
+navProfile.onclick = ()=>showPage(pages.profile);
 
-// Баланс
-function updateBalanceUI(){
+// INIT UI
+function updateBalance(){
   balanceEl.innerText = currentBalance.toFixed(2)+" ⭐️";
   profileBalanceEl.innerText = currentBalance.toFixed(2)+" ⭐️";
 }
-
-// Лайв-дроп (пример)
-setInterval(()=>{
-  const icons = ["items/star1.jpg","items/star3.jpg","items/star5.jpg"];
-  const img = icons[Math.floor(Math.random()*icons.length)];
-  const el = document.createElement('div');
-  el.className='drop-item';
-  el.innerHTML=`<img src="${img}" style="width:36px;height:36px;border-radius:8px">`;
-  liveDropLine.appendChild(el);
-  if(liveDropLine.children.length>15) liveDropLine.removeChild(liveDropLine.children[0]);
-},4000);
+function renderLeaderboard(){
+  const container = document.getElementById('leaderboardList');
+  container.innerHTML='';
+  leaderboard.forEach(u=>{
+    const row=document.createElement('div');
+    row.className='row';
+    row.innerText
