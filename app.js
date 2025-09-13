@@ -1,75 +1,93 @@
+// Проверяем Telegram WebApp
+const tg = window.Telegram?.WebApp;
+if (tg) tg.expand();
+
+// Элементы
+const nameEl = document.getElementById("name");
+const avatarEl = document.getElementById("avatar");
 const balanceEl = document.getElementById("balance");
-const profileBalanceEl = document.getElementById("profile-balance");
-const liveDropLine = document.getElementById("live-drop-line");
-const freeCaseEl = document.getElementById("free-case");
-const freeTimerEl = document.getElementById("free-timer");
+const liveDropList = document.getElementById("live-drop-list");
+const freeDaily = document.getElementById("free-daily");
+const freeDailyTimer = document.getElementById("free-daily-timer");
 
 let balance = 0;
-let lastFreeOpen = null;
+let inventory = [];
+let cooldown = 24 * 60 * 60 * 1000; // 24 часа
+let lastOpened = null;
 
-// обновление UI баланса
-function updateBalance() {
-  balanceEl.textContent = balance.toFixed(2) + " ⭐️";
-  if (profileBalanceEl) profileBalanceEl.textContent = balance.toFixed(2) + " ⭐️";
+// Имя и аватар
+if (tg?.initDataUnsafe?.user) {
+  const user = tg.initDataUnsafe.user;
+  nameEl.innerText = user.first_name || "Guest";
+  avatarEl.src = user.photo_url || "default-avatar.png";
 }
 
-// live drop
-function addLiveDrop(item) {
-  const el = document.createElement("div");
-  el.className = "drop-item";
-  el.innerHTML = <img src="${item.img}" style="width:36px;height:36px;border-radius:6px"/>;
-  liveDropLine.prepend(el);
-  while (liveDropLine.children.length > 15) {
-    liveDropLine.removeChild(liveDropLine.lastChild);
+// Обновление баланса
+function updateBalance() {
+  balanceEl.innerText = balance.toFixed(2) + " ⭐";
+}
+
+// Лайв-дроп
+function addToLiveDrop(item) {
+  const div = document.createElement("div");
+  div.className = "drop-item";
+  div.innerText = item.name;
+  liveDropList.prepend(div);
+  if (liveDropList.children.length > 15) {
+    liveDropList.removeChild(liveDropList.lastChild);
   }
 }
 
-// free daily case
-const freeItems = [
-  { name: "+1 ⭐️", stars: 1, chance: 40, img: "items/star1.jpg" },
-  { name: "+3 ⭐️", stars: 3, chance: 25, img: "items/star3.jpg" },
-  { name: "+5 ⭐️", stars: 5, chance: 15, img: "items/star5.jpg" },
-  { name: "🎁 Gift", stars: 20, chance: 3, img: "items/gift.jpg" },
-  { name: "💎 Rare", stars: 120, chance: 1, img: "items/diamond.jpg" },
+// Шансы Free Daily
+const freeDailyItems = [
+  { name: "+1 ⭐", reward: 1, chance: 50 },
+  { name: "+3 ⭐", reward: 3, chance: 25 },
+  { name: "+5 ⭐", reward: 5, chance: 15 },
+  { name: "🎁 Gift", reward: 20, chance: 5 },
+  { name: "💎 Big Gift", reward: 100, chance: 3 },
+  { name: "TON Prize", reward: 1000, chance: 2 }
 ];
 
-// выбор предмета по шансам
-function getRandomItem(pool) {
-  let total = pool.reduce((s, i) => s + i.chance, 0);
-  let r = Math.random() * total;
-  for (let i of pool) {
-    if ((r -= i.chance) <= 0) return i;
+// Выбор случайного предмета
+function getRandomItem(items) {
+  const total = items.reduce((acc, it) => acc + it.chance, 0);
+  let rand = Math.random() * total;
+  for (let it of items) {
+    if (rand < it.chance) return it;
+    rand -= it.chance;
   }
+  return items[0];
 }
 
-// таймер для free кейса
-function updateFreeTimer() {
-  if (!lastFreeOpen) {
-    freeTimerEl.textContent = "Открыть";
-    return;
-  }
-  const diff = Date.now() - lastFreeOpen;
-  const remain = 24 * 60 * 60 * 1000 - diff;
-  if (remain <= 0) {
-    freeTimerEl.textContent = "Открыть";
-    lastFreeOpen = null;
-  } else {
+// Таймер
+function updateTimer() {
+  if (!lastOpened) return;
+  const diff = Date.now() - lastOpened;
+  if (diff < cooldown) {
+    const remain = cooldown - diff;
     const h = Math.floor(remain / 3600000);
     const m = Math.floor((remain % 3600000) / 60000);
-    freeTimerEl.textContent = ${h}ч ${m}м;
+    freeDailyTimer.innerText = ${h}h ${m}m left;
+    setTimeout(updateTimer, 1000);
+  } else {
+    freeDailyTimer.innerText = "Available now";
+    lastOpened = null;
   }
 }
-setInterval(updateFreeTimer, 1000);
 
-// обработка free кейса
-freeCaseEl.addEventListener("click", () => {
-  if (lastFreeOpen) return alert("Уже открыт, жди таймер");
-  const item = getRandomItem(freeItems);
-  balance += item.stars;
+// Открытие free daily
+freeDaily.addEventListener("click", () => {
+  if (lastOpened && Date.now() - lastOpened < cooldown) {
+    alert("Подожди до следующего кейса!");
+    return;
+  }
+  const item = getRandomItem(freeDailyItems);
+  balance += item.reward;
+  inventory.push(item);
+  addToLiveDrop(item);
   updateBalance();
-  addLiveDrop(item);
-  lastFreeOpen = Date.now();
+  lastOpened = Date.now();
+  updateTimer();
 });
 
-// init
 updateBalance();
