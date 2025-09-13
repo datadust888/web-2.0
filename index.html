@@ -9,12 +9,12 @@
 <body>
   <div class="app">
 
-    <!-- HEADER / ПРОФИЛЬ -->
+    <!-- HEADER -->
     <header class="top-bar">
       <div class="left-area">
-        <img id="avatar" src="default-avatar.png" alt="avatar" class="avatar">
-        <div id="username">Guest</div>
+        <img id="avatar" src="default-avatar.png" alt="avatar" class="avatar-small"/>
       </div>
+      <div class="center-area"></div>
       <div class="right-area">
         <div class="balance-box">
           <span id="balance">0.00 ⭐️</span>
@@ -24,93 +24,82 @@
     </header>
 
     <!-- LIVE DROP -->
-    <section id="live-drop-line" class="live-drop"></section>
+    <section class="live-drop" id="live-drop-line"></section>
 
     <!-- PAGES -->
     <main class="pages">
-      <!-- MAIN PAGE -->
+
+      <!-- MAIN -->
       <section id="page-main" class="page active-page">
-        <div id="casesGrid" class="cases">
-          <div class="case big" id="free-case-card" data-price="0" data-name="Free Daily">
-            <img src="items/free-case.jpg" class="case-preview-img" alt="Free Case">
-            <div class="case-footer">
-              <span class="pill">FREE</span>
-              <button class="btn-open-case">Open</button>
-            </div>
-          </div>
-
-          <div class="case" data-price="0.1" data-name="TON Case">
-            <img src="items/ton-case.jpg" class="case-preview-img" alt="TON Case">
-            <div class="case-footer">
-              <span class="pill">0.1 TON</span>
-              <button class="btn-open-case">Open</button>
-            </div>
-          </div>
-
-          <div class="case" data-price="0.5" data-name="Premium Case">
-            <img src="items/premium-case.jpg" class="case-preview-img" alt="Premium Case">
-            <div class="case-footer">
-              <span class="pill">0.5 TON</span>
-              <button class="btn-open-case">Open</button>
-            </div>
-          </div>
+        <div class="banner">
+          <div class="banner-title">Free Daily Case</div>
+          <div class="banner-sub">Подпишись на @fiatvalue_bot чтобы открыть</div>
+          <button id="takeBtn" class="btn-primary">Open</button>
         </div>
 
-        <div id="case-result" class="result-area">Нажмите на кейс, чтобы открыть</div>
+        <div id="free-case-result" class="result-area">Нажми на кейс, чтобы открыть</div>
+
+        <div id="casesGrid" class="cases">
+          <div id="free-case-card" class="case big" data-name="Free Case">
+            <div class="case-preview"><img src="items/free-case.jpg" alt="Free Case"/></div>
+          </div>
+
+          <div class="case" data-name="Case 0.1 TON">
+            <div class="case-preview"><img src="items/case01.jpg" alt="Case 0.1 TON"/></div>
+          </div>
+
+          <div class="case" data-name="Case 0.5 TON">
+            <div class="case-preview"><img src="items/case05.jpg" alt="Case 0.5 TON"/></div>
+          </div>
+        </div>
       </section>
 
-      <!-- WEEKLY PAGE -->
-      <section id="page-weekly" class="page">
-        <h2>Top Users Weekly</h2>
+      <!-- WEEKLY -->
+      <section id="page-top" class="page">
+        <h2>Top Weekly</h2>
         <div id="leaderboardList" class="leaderboard"></div>
       </section>
 
-      <!-- PROFILE PAGE -->
+      <!-- PROFILE -->
       <section id="page-profile" class="page">
         <div class="profile-header">
-          <img id="profile-avatar" src="default-avatar.png" class="avatar" alt="profile avatar">
+          <img id="profile-avatar" src="default-avatar.png" alt="profile avatar"/>
           <div class="profile-info">
             <div id="profile-name">Guest</div>
-            <div>Wallet: <span id="wallet-address">—</span></div>
+            <div class="profile-sub">Wallet: <span id="wallet-address">—</span></div>
           </div>
         </div>
-        <div class="profile-balance">
-          <span>Balance:</span> <span id="profile-balance">0.00 ⭐️</span>
-          <button id="btn-deposit-profile">Deposit</button>
-        </div>
-        <div class="inventory">
-          <h4>Inventory</h4>
-          <div id="inventory-items" class="inventory-grid"></div>
+        <div class="profile-controls">
+          <div class="profile-balance">
+            <span>Баланс</span>
+            <div class="balance-box small">
+              <span id="profile-balance">0.00 ⭐️</span>
+              <button id="btn-deposit-profile" class="btn-ghost">Пополнить</button>
+            </div>
+          </div>
+          <div class="inventory">
+            <h4>Инвентарь</h4>
+            <div id="inventory-items" class="inventory-grid"></div>
+          </div>
         </div>
       </section>
     </main>
 
-    <!-- BOTTOM NAV -->
+    <!-- NAV -->
     <nav class="bottom-nav">
       <div id="nav-main" class="nav-item active">
-        <img src="icons/main.png" class="nav-icon" alt="Main">
-        Main
+        <img src="icons/main.png" alt="Main"/><span>Main</span>
       </div>
-      <div id="nav-weekly" class="nav-item">
-        <img src="icons/weekly.png" class="nav-icon" alt="Weekly">
-        Weekly
+      <div id="nav-top" class="nav-item">
+        <img src="icons/weekly.png" alt="Weekly"/><span>Weekly</span>
       </div>
       <div id="nav-profile" class="nav-item">
-        <img src="icons/profile.png" class="nav-icon" alt="Profile">
-        Profile
+        <img src="icons/profile.png" alt="Profile"/><span>Profile</span>
       </div>
     </nav>
 
-    <!-- TERMS MODAL -->
-    <div id="terms-modal" class="modal hidden">
-      <div class="modal-content">
-        <h3>Пользовательское соглашение</h3>
-        <p>Здесь текст вашего пользовательского соглашения...</p>
-        <button id="btn-accept-terms">Принять и продолжить</button>
-      </div>
-    </div>
-
   </div>
+
   <script src="app.js" defer></script>
 </body>
 </html>
