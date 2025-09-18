@@ -1,105 +1,95 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>FiatValue Cases</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>FiatValue | Cases</title>
   <link rel="stylesheet" href="style.css">
+  <!-- GSAP CDN for animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <!-- TonConnect stub (replace with real TonConnect SDK later) -->
+  <script src="tonconnect-stub.js" defer></script>
 </head>
 <body>
-  <div class="app">
+<div class="app">
 
-    <!-- HEADER -->
-    <header class="top-bar">
-      <div class="left-area">
-        <img id="avatar" src="default-avatar.png" alt="avatar" class="avatar-small"/>
-      </div>
-      <div class="center-area"></div>
-      <div class="right-area">
-        <div class="balance-box">
-          <span id="balance">0.00 ⭐️</span>
-          <button id="btn-add-balance-top">+</button>
+  <header class="top-bar">
+    <div class="left-area">
+      <img id="profile-avatar" class="avatar" src="items/default-avatar.png" alt="avatar">
+      <div id="profile-name" class="profile-name">Guest</div>
+    </div>
+    <div class="right-area">
+      <div id="wallet-address" class="wallet-address">—</div>
+      <div class="balance-box"><span id="balance">0.00 ⭐️</span><button id="btn-add-balance-top">+</button></div>
+    </div>
+  </header>
+
+  <section id="live-drop-line" class="live-drop"></section>
+
+  <main class="pages">
+    <section id="page-main" class="page active-page">
+      <div class="banner">
+        <div><div class="banner-title">FREE DAILY</div><div class="banner-sub" id="daily-sub">Подпишись на @fiatvalue</div></div>
+        <div>
+          <button id="btn-subscribe" class="btn-ghost">Subscribe</button>
+          <button id="btn-open-free" class="btn-primary">Open</button>
         </div>
       </div>
-    </header>
 
-    <!-- LIVE DROP -->
-    <section class="live-drop" id="live-drop-line"></section>
+      <div class="cases" id="casesGrid"></div>
 
-    <!-- PAGES -->
-    <main class="pages">
-
-      <!-- MAIN -->
-      <section id="page-main" class="page active-page">
-        <div class="banner">
-          <div class="banner-title">Free Daily Case</div>
-          <div class="banner-sub">Подпишись на @fiatvalue_bot чтобы открыть</div>
-          <button id="takeBtn" class="btn-primary">Open</button>
-        </div>
-
-        <div id="free-case-result" class="result-area">Нажми на кейс, чтобы открыть</div>
-
-        <div id="casesGrid" class="cases">
-          <div id="free-case-card" class="case big" data-name="Free Case">
-            <div class="case-preview"><img src="items/free-case.jpg" alt="Free Case"/></div>
-          </div>
-
-          <div class="case" data-name="Case 0.1 TON">
-            <div class="case-preview"><img src="items/case01.jpg" alt="Case 0.1 TON"/></div>
-          </div>
-
-          <div class="case" data-name="Case 0.5 TON">
-            <div class="case-preview"><img src="items/case05.jpg" alt="Case 0.5 TON"/></div>
+      <div id="case-modal" class="modal hidden">
+        <div class="modal-content">
+          <div id="modal-case-name" class="modal-title"></div>
+          <div id="modal-carousel" class="modal-carousel"></div>
+          <div class="modal-actions">
+            <button id="modal-open-btn" class="btn-primary">Open Case</button>
+            <button id="modal-close-btn" class="btn-ghost">Close</button>
           </div>
         </div>
-      </section>
-
-      <!-- WEEKLY -->
-      <section id="page-top" class="page">
-        <h2>Top Weekly</h2>
-        <div id="leaderboardList" class="leaderboard"></div>
-      </section>
-
-      <!-- PROFILE -->
-      <section id="page-profile" class="page">
-        <div class="profile-header">
-          <img id="profile-avatar" src="default-avatar.png" alt="profile avatar"/>
-          <div class="profile-info">
-            <div id="profile-name">Guest</div>
-            <div class="profile-sub">Wallet: <span id="wallet-address">—</span></div>
-          </div>
-        </div>
-        <div class="profile-controls">
-          <div class="profile-balance">
-            <span>Баланс</span>
-            <div class="balance-box small">
-              <span id="profile-balance">0.00 ⭐️</span>
-              <button id="btn-deposit-profile" class="btn-ghost">Пополнить</button>
-            </div>
-          </div>
-          <div class="inventory">
-            <h4>Инвентарь</h4>
-            <div id="inventory-items" class="inventory-grid"></div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- NAV -->
-    <nav class="bottom-nav">
-      <div id="nav-main" class="nav-item active">
-        <img src="icons/main.png" alt="Main"/><span>Main</span>
       </div>
-      <div id="nav-top" class="nav-item">
-        <img src="icons/weekly.png" alt="Weekly"/><span>Weekly</span>
-      </div>
-      <div id="nav-profile" class="nav-item">
-        <img src="icons/profile.png" alt="Profile"/><span>Profile</span>
-      </div>
-    </nav>
 
-  </div>
+      <div id="free-case-result" class="result-area">Last drop will appear here</div>
+    </section>
 
-  <script src="app.js" defer></script>
+    <section id="page-weekly" class="page">
+      <h2>Weekly Top</h2>
+      <div id="weekly-leaderboard" class="leaderboard"></div>
+    </section>
+
+    <section id="page-profile" class="page">
+      <div class="profile-section">
+        <img id="profile-avatar-page" src="items/default-avatar.png" class="avatar-large" alt="avatar">
+        <div id="profile-info"><div id="profile-name-page">Guest</div><div id="profile-balance">0.00 ⭐️</div></div>
+      </div>
+
+      <div class="wallet-actions">
+        <input id="wallet-input" placeholder="TON wallet address"/>
+        <button id="btn-connect-wallet" class="btn-primary">Connect</button>
+        <button id="btn-disconnect-wallet" class="btn-ghost">Disconnect</button>
+      </div>
+
+      <div class="referral">
+        <label>Referral link</label>
+        <input id="ref-link" readonly/>
+        <button id="btn-copy-ref" class="btn-ghost">Copy</button>
+      </div>
+
+      <div class="inventory">
+        <h4>Inventory</h4>
+        <div id="inventory-items" class="inventory-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <div id="nav-main" class="nav-item active"><img src="icons/main.png" alt=""><span>Main</span></div>
+    <div id="nav-weekly" class="nav-item"><img src="icons/weekly.png" alt=""><span>Weekly</span></div>
+    <div id="nav-profile-btn" class="nav-item"><img src="icons/profile.png" alt=""><span>Profile</span></div>
+  </nav>
+
+</div>
+
+<script src="app.js" defer></script>
 </body>
 </html>
