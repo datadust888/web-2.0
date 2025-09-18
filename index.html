@@ -1,80 +1,102 @@
+<!-- web/index.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>@fiatvalue Cases</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FiatValue | Cases</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Верхняя панель -->
-  <div class="top-bar">
-    <div class="profile">
-      <img id="avatar" src="./items/default-avatar.png" alt="avatar" />
-      <span id="name">User</span>
+<div class="app">
+
+  <header class="top-bar">
+    <div class="left-area">
+      <img id="profile-avatar" class="avatar" src="items/default-avatar.png" alt="avatar">
+      <div id="profile-name" class="profile-name">Guest</div>
     </div>
-    <div class="balance">
-      <img src="./items/star.png" alt="star" width="20" />
-      <span id="balance">0 ⭐️</span>
+    <div class="right-area">
+      <div id="wallet-address" class="wallet-address">—</div>
+      <div class="balance-box"><span id="balance">0.00 ⭐️</span><button id="btn-add-balance-top">+</button></div>
     </div>
-  </div>
+  </header>
 
-  <!-- Лайв-дроп -->
-  <div id="live-drop"></div>
+  <section id="live-drop-line" class="live-drop"></section>
 
-  <!-- Страницы -->
-  <div class="page" id="page-main">
-    <h2>Кейсы</h2>
-    <div class="cases-grid">
-      <div class="case" data-case="free">
-        <img src="./items/free-case.jpg" alt="free" />
-        <div class="case-title">FREE DAILY</div>
+  <main class="pages">
+
+    <section id="page-main" class="page active-page">
+      <div class="banner">
+        <div>
+          <div class="banner-title">FREE DAILY</div>
+          <div class="banner-sub" id="daily-sub">Subscribe to @fiatvalue to open</div>
+        </div>
+        <div>
+          <button id="btn-subscribe" class="btn-ghost">Subscribe</button>
+          <button id="btn-open-free" class="btn-primary">Open</button>
+        </div>
       </div>
-      <div class="case" data-case="ton01">
-        <img src="./items/ton01-case.jpg" alt="0.1 TON" />
-        <div class="case-title">0.1 TON CASE</div>
+
+      <div class="cases" id="casesGrid">
+        <!-- cases inserted by JS -->
       </div>
-      <div class="case" data-case="ton05">
-        <img src="./items/ton05-case.jpg" alt="0.5 TON" />
-        <div class="case-title">0.5 TON CASE</div>
+
+      <div id="case-modal" class="modal hidden">
+        <div class="modal-content">
+          <div id="modal-case-name" class="modal-title"></div>
+          <div id="modal-items" class="modal-items"></div>
+          <div class="modal-actions">
+            <button id="modal-open-btn" class="btn-primary">Open Case</button>
+            <button id="modal-close-btn" class="btn-ghost">Close</button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="page" id="page-weekly">
-    <h2>Топ недели</h2>
-    <ul id="weekly-top">
-      <li>Игрок1 — +500 ⭐️</li>
-      <li>Игрок2 — +300 ⭐️</li>
-      <li>Игрок3 — +150 ⭐️</li>
-    </ul>
-  </div>
+      <div id="free-case-result" class="result-area">Last drop will appear here</div>
+    </section>
 
-  <div class="page" id="page-profile">
-    <h2>Профиль</h2>
-    <p>Добро пожаловать, <span id="name-profile">User</span>!</p>
-    <p>Ваш текущий баланс: <span id="profile-balance">0 ⭐️</span></p>
-    <button onclick="alert('Пополнение скоро будет доступно!')">
-      Пополнить баланс
-    </button>
-  </div>
+    <section id="page-weekly" class="page">
+      <h2>Weekly Top</h2>
+      <div id="weekly-leaderboard" class="leaderboard"></div>
+    </section>
 
-  <!-- Нижняя навигация -->
-  <div class="bottom-nav">
-    <button id="nav-main">
-      <img src="./items/home.png" alt="home" />
-      Main
-    </button>
-    <button id="nav-weekly">
-      <img src="./items/trophy.png" alt="trophy" />
-      Weekly
-    </button>
-    <button id="nav-profile">
-      <img src="./items/user.png" alt="user" />
-      Profile
-    </button>
-  </div>
+    <section id="page-profile" class="page">
+      <div class="profile-section">
+        <img id="profile-avatar-page" src="items/default-avatar.png" class="avatar-large" alt="avatar">
+        <div id="profile-info">
+          <div id="profile-name-page">Guest</div>
+          <div id="profile-balance">0.00 ⭐️</div>
+        </div>
+      </div>
 
-  <script src="app.js"></script>
+      <div class="wallet-actions">
+        <input id="wallet-input" placeholder="TON wallet address"/>
+        <button id="btn-connect-wallet" class="btn-primary">Connect</button>
+        <button id="btn-disconnect-wallet" class="btn-ghost">Disconnect</button>
+      </div>
+
+      <div class="referral">
+        <label>Referral link</label>
+        <input id="ref-link" readonly/>
+        <button id="btn-copy-ref" class="btn-ghost">Copy</button>
+      </div>
+
+      <div class="inventory">
+        <h4>Inventory</h4>
+        <div id="inventory-items" class="inventory-grid"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <div id="nav-main" class="nav-item active"><img src="icons/main.png" alt=""><span>Main</span></div>
+    <div id="nav-weekly" class="nav-item"><img src="icons/weekly.png" alt=""><span>Weekly</span></div>
+    <div id="nav-profile" class="nav-item"><img src="icons/profile.png" alt=""><span>Profile</span></div>
+  </nav>
+
+</div>
+
+<script src="app.js" defer></script>
 </body>
 </html>
