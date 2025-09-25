@@ -1,0 +1,384 @@
+/* styles/Home.module.css */
+.container {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  color: white;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Header стиль как в @case_official_bot */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.balance {
+  display: flex;
+  flex-direction: column;
+}
+
+.balanceLabel {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.balanceAmount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.coinIcon {
+  font-size: 32px;
+}
+
+/* Навигация как в @virus_play_bot */
+.nav {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 0 20px;
+  border-radius: 15px;
+  padding: 5px;
+}
+
+.navButton {
+  flex: 1;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.navButton.active {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.main {
+  padding: 20px;
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+/* Стили для кейсов как в @case_official_bot */
+.casesGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.caseCard {
+  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.3s ease;
+}
+
+.caseCard:hover {
+  transform: translateY(-5px);
+}
+
+.caseImage {
+  position: relative;
+  padding: 20px;
+  text-align: center;
+  background: rgba(0,0,0,0.2);
+}
+
+.caseImage img {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+}
+
+.caseRarity {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+.caseInfo {
+  padding: 15px;
+}
+
+.caseInfo h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+
+.caseInfo p {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.casePrice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.casePrice span {
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.openButton {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.openButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+}
+
+/* Стили для таблицы лидеров как в @GiftsBattle */
+.leaderboard {
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.leaderboardItem {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.leaderboardItem:last-child {
+  border-bottom: none;
+}
+
+.leaderboardItem.currentUser {
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.rank {
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 15px;
+  min-width: 40px;
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.playerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.playerName {
+  font-weight: 500;
+}
+
+.amount {
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.leaderboardNote {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* Стили для профиля */
+.profileHeader {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profileAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  border: 3px solid #4ecdc4;
+}
+
+.userId {
+  opacity: 0.6;
+  font-size: 14px;
+}
+
+.infoCard {
+  background: rgba(255,255,255,0.05);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.infoCard h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #4ecdc4;
+}
+
+.walletAddress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.3);
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-family: monospace;
+}
+
+.copyButton {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.referralStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.stat {
+  text-align: center;
+  padding: 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
+
+.stat span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 5px;
+}
+
+.referralText {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 15px;
+}
+
+.referralButton {
+  width: 100%;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.emptyHistory {
+  text-align: center;
+  padding: 30px;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* Анимация открытия кейса */
+.openingContainer {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.openingAnimation {
+  text-align: center;
+}
+
+.spinningCase {
+  animation: spin 1s infinite linear;
+  margin-bottom: 30px;
+}
+
+.spinningCase img {
+  width: 150px;
+  height: 150px;
+}
+
+.loadingDots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.loadingDots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4ecdc4;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.loadingDots span:nth-child(1) { animation-delay: -0.32s; }
+.loadingDots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .casesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .navButton {
+    font-size: 12px;
+    padding: 10px 8px;
+  }
+  
+  .main {
+    padding: 15px;
+  }
+}
