@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FiatValue NFT Gifts</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="user-info">
+                <img id="user-avatar" src="icons/default-avatar.jpg" alt="Avatar" class="avatar">
+                <span id="user-name">User</span>
+            </div>
+            <div class="balance">
+                <span id="balance-amount">100</span> ⭐
+                <button id="top-up-btn" class="btn-top-up">+</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Main Page -->
+            <div id="main-page" class="page active">
+                <div class="cases-section">
+                    <h2 class="section-title">Available Cases</h2>
+                    
+                    <!-- Free Case -->
+                    <div class="case-card free-case" data-case-type="free">
+                        <div class="case-header">
+                            <span class="case-badge free">FREE</span>
+                            <span class="case-timer" id="free-timer">24:00:00</span>
+                        </div>
+                        <img src="items/cases/free-case.jpg" alt="Free Case" class="case-image">
+                        <h3>Daily Free Case</h3>
+                        <p>Open every 24 hours</p>
+                        <button class="btn-open" onclick="openCase('free')">OPEN</button>
+                    </div>
+
+                    <!-- Basic Case -->
+                    <div class="case-card basic-case" data-case-type="basic">
+                        <div class="case-header">
+                            <span class="case-badge basic">BASIC</span>
+                            <span class="case-price">22 ⭐</span>
+                        </div>
+                        <img src="items/cases/basic-case.jpg" alt="Basic Case" class="case-image">
+                        <h3>Basic Case</h3>
+                        <p>Common & Rare items</p>
+                        <button class="btn-open" onclick="openCase('basic')">OPEN - 22 ⭐</button>
+                    </div>
+
+                    <!-- Premium Case -->
+                    <div class="case-card premium-case" data-case-type="premium">
+                        <div class="case-header">
+                            <span class="case-badge premium">PREMIUM</span>
+                            <span class="case-price">110 ⭐</span>
+                        </div>
+                        <img src="items/cases/premium-case.jpg" alt="Premium Case" class="case-image">
+                        <h3>Premium Case</h3>
+                        <p>Epic & Legendary items</p>
+                        <button class="btn-open" onclick="openCase('premium')">OPEN - 110 ⭐</button>
+                    </div>
+                </div>
+
+                <!-- Live Drop Feed -->
+                <div class="live-drop-section">
+                    <h3>Live Drops 🔥</h3>
+                    <div class="live-drop-feed" id="live-drop-feed">
+                        <!-- Dynamic content from app.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Page -->
+            <div id="weekly-page" class="page">
+                <div class="weekly-section">
+                    <h2 class="section-title">Weekly Leaderboard</h2>
+                    <div class="leaderboard" id="leaderboard">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="page">
+                <div class="profile-section">
+                    <div class="profile-header">
+                        <img id="profile-avatar" src="icons/default-avatar.jpg" alt="Avatar" class="profile-avatar">
+                        <h2 id="profile-name">User</h2>
+                        <div class="user-stats">
+                            <span>Balance: <strong id="profile-balance">100</strong> ⭐</span>
+                            <span>Cases opened: <strong id="cases-opened">0</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="wallet-section">
+                        <h3>TON Wallet</h3>
+                        <div class="wallet-info" id="wallet-info">
+                            <span>Not connected</span>
+                            <button class="btn-connect" onclick="connectWallet()">Connect</button>
+                        </div>
+                    </div>
+
+                    <div class="referral-section">
+                        <h3>Referral Program</h3>
+                        <p>Invite friends and get 5% from their deposits!</p>
+                        <div class="referral-stats">
+                            <div class="stat">
+                                <span>Invited</span>
+                                <strong id="invited-count">0</strong>
+                            </div>
+                            <div class="stat">
+                                <span>Earned</span>
+                                <strong id="earned-amount">0</strong> ⭐
+                            </div>
+                        </div>
+                        <button class="btn-referral" onclick="copyReferral()">
+                            📤 Copy Referral Link
+                        </button>
+                    </div>
+
+                    <div class="inventory-section">
+                        <h3>Inventory</h3>
+                        <div class="inventory-grid" id="inventory-grid">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="main">
+                <span>🎁</span>
+                <span>Main</span>
+            </button>
+            <button class="nav-btn" data-page="weekly">
+                <span>📊</span>
+                <span>Weekly</span>
+            </button>
+            <button class="nav-btn" data-page="profile">
+                <span>👤</span>
+                <span>Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Subscription Modal -->
+    <div id="subscription-modal" class="modal">
+        <div class="modal-content">
+            <h3>Subscribe to Channel</h3>
+            <p>To open free cases, please subscribe to our channel:</p>
+            <a href="https://t.me/fiatvalue" target="_blank" class="channel-link">
+                @fiatvalue
+            </a>
+            <div class="modal-buttons">
+                <button class="btn-check" onclick="checkSubscription()">I'm Subscribed</button>
+                <button class="btn-cancel" onclick="closeModal('subscription-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Opening Modal -->
+    <div id="case-modal" class="modal case-modal">
+        <div class="modal-content">
+            <div class="case-opening-animation">
+                <div class="case-spinner">
+                    <img id="spinning-case" src="" alt="Case">
+                </div>
+                <div class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <p>Opening case...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal win-modal">
+        <div class="modal-content">
+            <div class="win-animation">
+                <div class="won-item">
+                    <img id="won-item-image" src="" alt="Won Item">
+                    <div class="item-rarity" id="won-item-rarity"></div>
+                </div>
+                <h3 id="won-item-name"></h3>
+                <p class="item-value">+<span id="won-item-value">0</span> ⭐</p>
+                <button class="btn-claim" onclick="closeModal('win-modal')">Claim</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
