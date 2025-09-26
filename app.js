@@ -1,380 +1,425 @@
-// Конфигурация приложения
+// app.js — исправленный и доработанный
+// Конфигурация
 const CONFIG = {
-    TON_TO_STARS: 175, // 1 TON = 175 звезд
-    API_URL: 'http://localhost:3000/api',
-    BOT_USERNAME: 'fiatvalue_bot',
-    MERCHANT_WALLET: 'EQABCD1234567890abcdefghijklmnopqrstuvwxyz1234567890abc',
-    CASE_PRICES: {
-        free: 0,
-        basic: 10,
-        premium: 50,
-        luxury: 100
-    }
+  TON_TO_STARS: 176,
+  API_URL: window.location.origin + '/api',
+  CASE_PRICES: {
+    free: 0,
+    basic: 18,   // 0.1 TON -> 18 ⭐️ (пример)
+    premium: 88  // 0.5 TON -> 88 ⭐️ (пример)
+  },
+  ITEM_IMAGES: {
+    common: 'items/drops/common/',
+    uncommon: 'items/drops/uncommon/',
+    rare: 'items/drops/rare/',
+    epic: 'items/drops/epic/',
+    legendary: 'items/drops/legendary/'
+  }
 };
 
 // Глобальное состояние
 let currentUser = null;
-let currentPage = 'cases';
+let currentPage = 'main';
 let selectedCaseType = null;
-let depositAmount = 0;
+let freeCaseNextAvailable = 0;
 
-// Инициализация Telegram Web App
-const tg = window.Telegram.WebApp;
+// Telegram WebApp safe reference
+const tg = window.Telegram?.WebApp || null;
 
-// Основная функция инициализации
+// Инициализация после загрузки DOM
 document.addEventListener('DOMContentLoaded', async () => {
-    await initializeApp();
-    setupEventListeners();
-    loadInitialData();
+  await initializeApp();
+  setupEventListeners();
+  loadInitialData();
 });
 
 async function initializeApp() {
-    // Инициализация Telegram Web App
-    tg.expand();
-    tg.enableClosingConfirmation();
-    
-    // Загрузка пользователя
+  try {
+    if (tg?.expand) {
+      try { tg.expand(); } catch (e) { /* ignore if not allowed */ }
+    }
+    // Загрузим пользователя
     await loadUserData();
-    
-    // Обновление интерфейса
-    updateUserInterface();
-    updateLiveDrops();
-    updateTopLists();
-    updateInventory();
+    updateUI();
+    startTimers();
+  } catch (e) {
+    console.error('initializeApp error', e);
+  }
 }
 
+// Загрузка данных пользователя — безопасно
 async function loadUserData() {
-    try {
-        // Если пользователь авторизован через Telegram
-        if (tg.initDataUnsafe?.user) {
-            const userData = tg.initDataUnsafe.user;
-            currentUser = {
-                id: userData.id,
-                firstName: userData.first_name,
-                lastName: userData.last_name || '',
-                username: userData.username,
-                photoUrl: userData.photo_url,
-                balance: 0,
-                walletConnected: false,
-                walletAddress: null,
-                invitedCount: 0,
-                earnedFromRefs: 0
-            };
-            
-            // Загрузка данных с сервера
-            const response = await fetch(`${CONFIG.API_URL}/user/${currentUser.id}`);
-            if (response.ok) {
-                const serverData = await response.json();
-                Object.assign(currentUser, serverData);
-            }
+  try {
+    // если запускается внутри Telegram WebApp и есть данные
+    if (tg?.initDataUnsafe?.user) {
+      const u = tg.initDataUnsafe.user;
+      currentUser = {
+        id: String(u.id),
+        firstName: u.first_name  (u.username  'Guest'),
+        username: u.username || '',
+        photoUrl: u.photo_url || 'icons/default-avatar.jpg',
+        balance: 0,
+        walletConnected: false,
+        invitedCount: 0,
+        earnedFromRefs: 0,
+        walletAddress: null
+      };
+
+      // Попробуем загрузить серверные данные (если есть endpoint)
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/user/${encodeURIComponent(currentUser.id)}`);
+        if (res.ok) {
+          const j = await res.json();
+          // сервер может вернуть структуру { user: {...} } или просто объект — защищаемся
+          const serverUser = j.user || j;
+          if (serverUser) {
+            Object.assign(currentUser, serverUser);
+          }
         } else {
-            // Заглушка для разработки
-            currentUser = {
-                id: 1,
-                firstName: 'Тестовый',
-                lastName: 'Игрок',
-                username: 'testplayer',
-                photoUrl: 'icons/default-avatar.jpg',
-                balance: 100,
-                walletConnected: false,
-                walletAddress: null,
-                invitedCount: 3,
-                earnedFromRefs: 15
-            };
+          console.warn('User API returned non-OK', res.status);
         }
-    } catch (error) {
-        console.error('Ошибка загрузки пользователя:', error);
-    }
-}
-
-function setupEventListeners() {
-    // Обработка закрытия модальных окон
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-            closeModal(e.target.id);
-        }
-    });
-}
-
-function loadInitialData() {
-    // Загрузка живых дропов
-    updateLiveDrops();
-    
-    // Загрузка топа
-    updateTopLists();
-    
-    // Загрузка инвентаря
-    updateInventory();
-}
-
-// Навигация по страницам
-function switchPage(page) {
-    // Скрыть все страницы
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    
-    // Показать выбранную страницу
-    document.getElementById(`${page}-page`).classList.add('active');
-    document.querySelector(`.nav-btn[onclick="switchPage('${page}')"]`).classList.add('active');
-    
-    currentPage = page;
-    
-    // Обновить данные страницы
-    switch(page) {
-        case 'top':
-            updateTopLists();
-            break;
-        case 'profile':
-            updateInventory();
-            break;
-    }
-}
-
-// Обновление интерфейса пользователя
-function updateUserInterface() {
-    if (!currentUser) return;
-    
-    // Обновление аватара и имени
-    document.getElementById('user-avatar').src = currentUser.photoUrl;
-    document.getElementById('user-name').textContent = currentUser.firstName;
-    document.getElementById('user-balance').textContent = currentUser.balance;
-    
-    document.getElementById('profile-avatar').src = currentUser.photoUrl;
-    document.getElementById('profile-name').textContent = currentUser.firstName;
-    document.getElementById('profile-balance-amount').textContent = currentUser.balance;
-    
-    // Обновление кошелька
-    const walletElement = document.getElementById('wallet-address');
-    if (currentUser.walletConnected && currentUser.walletAddress) {
-        walletElement.textContent = `${currentUser.walletAddress.slice(0, 8)}...${currentUser.walletAddress.slice(-8)}`;
+      } catch (err) {
+        console.warn('Unable to load server user data', err);
+      }
     } else {
-        walletElement.textContent = 'Не подключен';
+      // локальная заглушка для разработки
+      const demoId = localStorage.getItem('fv_demo_id') || demo_${Math.floor(Math.random() * 1000000)};
+      localStorage.setItem('fv_demo_id', demoId);
+      currentUser = {
+        id: demoId,
+        firstName: 'DemoUser',
+        username: 'demo',
+        photoUrl: 'icons/default-avatar.jpg',
+        balance: 150,
+        walletConnected: false,
+        invitedCount: 2,
+        earnedFromRefs: 5,
+        walletAddress: null
+      };
     }
-    
-    // Обновление реферальной статистики
-    document.getElementById('invited-count').textContent = currentUser.invitedCount;
-    document.getElementById('earned-amount').textContent = `${currentUser.earnedFromRefs} ⭐`;
+  } catch (e) {
+    console.error('loadUserData error', e);
+  }
 }
 
-// Лента живых дропов
+// Навешиваем обработчики UI
+function setupEventListeners() {
+  // Навигация
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const page = e.currentTarget.getAttribute('data-page');
+      if (page) switchPage(page);
+    });
+  });
+
+  // Tabs in Weekly top
+  document.querySelectorAll('.top-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const el = e.currentTarget;
+      const kind = el.dataset.kind || 'global';
+      showTop(kind);
+    });
+  });
+
+  // Modal close by clicking overlay
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  });
+
+  // Open-case button inside modal
+  const openBtn = document.getElementById('btn-open-case');
+  if (openBtn) openBtn.addEventListener('click', openCase);
+
+  // Copy referral
+  const refBtn = document.querySelector('.btn-referral');
+  if (refBtn) refBtn.addEventListener('click', copyReferral);
+
+  // Wallet actions
+  const connectBtn = document.querySelector('.btn-connect');
+  if (connectBtn) connectBtn.addEventListener('click', connectWallet);
+
+  const depositBtn = document.querySelectorAll('.btn-deposit');
+  depositBtn.forEach(b => b.addEventListener('click', showDepositModal));
+}
+
+// Показ страницы
+function switchPage(page) {
+  try {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+    const nav = document.querySelector(`.nav-btn[data-page="${page}"]`);
+    if (nav) nav.classList.add('active');
+
+    const pageEl = document.getElementById(`${page}-page`) || document.getElementById(`${page}-page`.replace('--', ''));
+    // поддержка старых id: main-page, weekly-page, profile-page
+    const fallbackPage = document.getElementById(`${page}-page`);
+    if (pageEl) pageEl.classList.add('active');
+    else if (fallbackPage) fallbackPage.classList.add('active');
+
+    currentPage = page;
+
+    // динамично грузим контент для страниц
+    if (page === 'weekly') loadLeaderboard();
+    if (page === 'profile') loadInventory();
+  } catch (e) {
+    console.error('switchPage error', e);
+  }
+}
+
+// Обновление UI из currentUser
+function updateUI() {
+  if (!currentUser) return;
+  safeSetSrc('user-avatar', currentUser.photoUrl);
+  safeSetText('user-name', currentUser.firstName || 'Guest');
+  safeSetTextBySelector('.balance', (Number(currentUser.balance || 0)).toFixed(2));
+  safeSetSrc('profile-avatar', currentUser.photoUrl);
+  safeSetText('profile-name', currentUser.firstName || 'Guest');
+  safeSetText('profile-balance', (Number(currentUser.balance || 0)).toFixed(2));
+  safeSetText('invited-count', currentUser.invitedCount || 0);
+  safeSetText('earned-amount', currentUser.earnedFromRefs || 0);
+
+  const walletElement = document.getElementById('wallet-address');
+  if (walletElement) {
+    if (currentUser.walletAddress) {
+      walletElement.textContent = ${currentUser.walletAddress.slice(0, 8)}...${currentUser.walletAddress.slice(-4)};
+    } else {
+      walletElement.textContent = 'Not connected';
+    }
+  }
+}
+
+// Безопасная утилита для установки текста
+function safeSetText(idOrSelector, value) {
+  if (!idOrSelector) return;
+  const el = document.getElementById(idOrSelector) || document.querySelector(idOrSelector);
+  if (el) el.textContent = value;
+}
+
+// Безопасная утилита для установки src
+function safeSetSrc(id, src) {
+  const el = document.getElementById(id);
+  if (el && src) el.src = src;
+}
+
+// Live Drops (демо — можно заменить реальными данными)
 function updateLiveDrops() {
-    const liveDrops = [
-        { user: 'Alex', item: 'Rare Hat', value: 50, rarity: 'rare' },
-        { user: 'Maria', item: 'Epic Cake', value: 150, rarity: 'epic' },
-        { user: 'John', item: 'Legendary Gem', value: 500, rarity: 'legendary' },
-        { user: 'Sarah', item: 'Common Coin', value: 10, rarity: 'common' }
+  try {
+    const drops = [
+      { user: 'Alex', item: 'Common Coin', rarity: 'common', value: 5 },
+      { user: 'Maria', item: 'Rare Hat', rarity: 'rare', value: 50 },
+      { user: 'John', item: 'Epic Sword', rarity: 'epic', value: 150 }
     ];
-    
-    const liveDropScroll = document.querySelector('.live-drop-scroll');
-    liveDropScroll.innerHTML = liveDrops.map(drop => `
-        <div class="live-drop-item">
-            ${drop.user} выиграл <span class="rarity-${drop.rarity}">${drop.item}</span> (+${drop.value}⭐)!
-        </div>
+    const container = document.getElementById('live-drops');
+    if (!container) return;
+    container.innerHTML = drops.map(drop => `
+      <div class="live-drop-item">
+        <strong>${escapeHtml(drop.user)}</strong> won
+        <span class="rarity-${drop.rarity}"> ${escapeHtml(drop.item)}</span>
+        <span class="drop-value">+${drop.value}⭐️</span>
+      </div>
     `).join('');
+  } catch (e) {
+    console.error('updateLiveDrops', e);
+  }
 }
 
-// Топ игроков
-function updateTopLists() {
-    const globalTop = [
-        { rank: 1, name: 'CryptoKing', amount: 12500, avatar: 'icons/default-avatar.jpg' },
-        { rank: 2, name: 'NFTHunter', amount: 9800, avatar: 'icons/default-avatar.jpg' },
-        { rank: 3, name: 'TonMaster', amount: 7650, avatar: 'icons/default-avatar.jpg' },
-        { rank: 4, name: 'BlockChainPro', amount: 5420, avatar: 'icons/default-avatar.jpg' },
-        { rank: 5, name: currentUser.firstName, amount: currentUser.balance, avatar: currentUser.photoUrl, isCurrent: true }
-    ];
-    
-    const friendsTop = [
-        { rank: 1, name: 'Друг_1', amount: 1500, avatar: 'icons/default-avatar.jpg' },
-        { rank: 2, name: 'Друг_2', amount: 1200, avatar: 'icons/default-avatar.jpg' },
-        { rank: 3, name: currentUser.firstName, amount: currentUser.balance, avatar: currentUser.photoUrl, isCurrent: true }
-    ];
-    
-    document.getElementById('global-top').innerHTML = globalTop.map(player => `
-        <div class="top-item ${player.isCurrent ? 'current-user' : ''}">
-            <div class="top-rank">#${player.rank}</div>
-            <div class="top-user">
-                <img src="${player.avatar}" alt="${player.name}" class="top-user-avatar">
-                <span>${player.name}</span>
-            </div>
-            <div class="top-amount">${player.amount} ⭐</div>
-        </div>
-    `).join('');
-    
-    document.getElementById('friends-top').innerHTML = friendsTop.map(player => `
-        <div class="top-item ${player.isCurrent ? 'current-user' : ''}">
-            <div class="top-rank">#${player.rank}</div>
-            <div class="top-user">
-                <img src="${player.avatar}" alt="${player.name}" class="top-user-avatar">
-                <span>${player.name}</span>
-            </div>
-            <div class="top-amount">${player.amount} ⭐</div>
-        </div>
-    `).join('');
+// Открытие модального окна кейса
+function openCaseModal(caseType) {
+  try {
+    selectedCaseType = caseType;
+    const price = CONFIG.CASE_PRICES[caseType] ?? 0;
+    const imgEl = document.getElementById('modal-case-image');
+    if (imgEl) imgEl.src = items/cases/${caseType}-case.jpg;
+    safeSetText('modal-price', price);
+
+    const openBtn = document.getElementById('btn-open-case');
+    if (openBtn) {
+      if (price > (currentUser.balance || 0) && caseType !== 'free') {
+        openBtn.disabled = true;
+        openBtn.textContent = 'INSUFFICIENT BALANCE';
+        openBtn.style.opacity = '0.6';
+      } else {
+        openBtn.disabled = false;
+        openBtn.innerHTML = OPEN FOR <span id="modal-price">${price}</span> ⭐️;
+        openBtn.style.opacity = '';
+      }
+    }
+    showModal('case-modal');
+  } catch (e) {
+    console.error('openCaseModal error', e);
+  }
 }
 
-// Переключение вкладок топа
-function switchTopTab(tab) {
-    document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.top-list').forEach(l => l.classList.add('hidden'));
-    
-    document.querySelector(`.top-tab[onclick="switchTopTab('${tab}')"]`).classList.add('active');
-    document.getElementById(`${tab}-top`).classList.remove('hidden');
+// Открыть кейс (взаимодействие с сервером)
+async function openCase() {
+  if (!selectedCaseType || !currentUser) return;
+  try {
+    const res = await fetch(`${CONFIG.API_URL}/case/${encodeURIComponent(selectedCaseType)}/${encodeURIComponent(currentUser.id)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const j = await res.json();
+    if (!j) return alert('Server returned empty response.');
+    if (j.ok || j.success) {
+      // Сервер может возвращать разную структуру: normalize
+      const newBal = j.balance ?? j.newBalance ?? (j.user && j.user.balance) ?? currentUser.balance;
+      currentUser.balance = Number(newBal  currentUser.balance  0);
+      updateUI();
+      // item description
+      const item = j.item  j.prize  { name: j.name  'Unknown', rarity: j.rarity  'common', value: j.value || 0 };
+      showWinModal(item);
+      // обновляем live-drops (демо)
+      updateLiveDrops();
+    } else {
+      const msg = j.error  j.message  'Unknown server error';
+      alert(msg);
+    }
+  } catch (e) {
+    console.error('openCase error', e);
+    alert('Error opening case (network). Check console.');
+  }
 }
 
-// Инвентарь
-function updateInventory() {
-    const inventory = [
-        { name: 'Golden Coin', rarity: 'rare', value: 50, image: 'items/drops/coin.jpg' },
-        { name: 'Magic Hat', rarity: 'epic', value: 150, image: 'items/drops/hat.jpg' },
-        { name: 'Crystal Gem', rarity: 'legendary', value: 500, image: 'items/drops/gem.jpg' }
-    ];
-    
-    const inventoryGrid = document.getElementById('inventory-grid');
-    inventoryGrid.innerHTML = inventory.map(item => `
-        <div class="item-card ${item.rarity}">
-            <img src="${item.image}" alt="${item.name}">
-            <div class="item-price">${item.value}⭐</div>
-            <div class="item-name">${item.name}</div>
-        </div>
-    `).join('');
+// Показываем модал с выигранным предметом
+function showWinModal(item) {
+  try {
+    const imgPath = ${CONFIG.ITEM_IMAGES[item.rarity] || CONFIG.ITEM_IMAGES.common}${(item.image || item.name || 'unknown').toString().toLowerCase().replace(/\s+/g, '-')}.jpg;
+    const wonImg = document.getElementById('won-item-image');
+    if (wonImg) wonImg.src = imgPath;
+    safeSetText('won-item-name', item.name || 'Unknown');
+    safeSetText('won-item-value', item.value ?? item.stars ?? 0);
+
+    closeModal();
+    showModal('win-modal');
+
+    // GSAP animation (if подключён)
+    if (window.gsap) {
+      window.gsap.from('.won-item', {
+        scale: 0,
+        rotation: 360,
+        duration: 1,
+        ease: "back.out(1.7)"
+      });
+    }
+  } catch (e) {
+    console.error('showWinModal', e);
+  }
 }
 
 // Модальные окна
-function showDepositModal() {
-    document.getElementById('deposit-address').textContent = CONFIG.MERCHANT_WALLET;
-    showModal('deposit-modal');
-}
-
-function openCaseModal(caseType) {
-    selectedCaseType = caseType;
-    const price = CONFIG.CASE_PRICES[caseType];
-    
-    document.getElementById('modal-case-price').textContent = price;
-    document.getElementById('modal-case-image').src = `items/cases/${caseType}-case.jpg`;
-    document.getElementById('case-modal-title').textContent = `Открытие ${getCaseName(caseType)}`;
-    
-    // Проверка баланса
-    const openButton = document.getElementById('btn-open-case');
-    if (price > currentUser.balance && caseType !== 'free') {
-        openButton.disabled = true;
-        openButton.textContent = 'НЕДОСТАТОЧНО СРЕДСТВ';
-        openButton.style.background = '#666';
-    } else {
-        openButton.disabled = false;
-        openButton.innerHTML = `ОТКРЫТЬ ЗА <span id="modal-case-price">${price}</span> ⭐`;
-        openButton.style.background = '';
-    }
-    
-    showModal('case-modal');
-}
-
-function openCase() {
-    if (!selectedCaseType) return;
-    
-    const price = CONFIG.CASE_PRICES[selectedCaseType];
-    
-    // Проверка баланса
-    if (price > currentUser.balance && selectedCaseType !== 'free') {
-        alert('Недостаточно средств!');
-        return;
-    }
-    
-    // Симуляция открытия кейса
-    simulateCaseOpening(selectedCaseType);
-}
-
-function simulateCaseOpening(caseType) {
-    const items = {
-        free: [
-            { name: 'Обычная монета', rarity: 'common', value: 5, image: 'items/drops/coin.jpg' },
-            { name: 'Необычный цветок', rarity: 'uncommon', value: 15, image: 'items/drops/flower.jpg' },
-            { name: 'Редкая шляпа', rarity: 'rare', value: 50, image: 'items/drops/hat.jpg' }
-        ],
-        basic: [
-            { name: 'Серебряная монета', rarity: 'uncommon', value: 20, image: 'items/drops/coin2.jpg' },
-            { name: 'Магический свиток', rarity: 'rare', value: 75, image: 'items/drops/scroll.jpg' },
-            { name: 'Эпический меч', rarity: 'epic', value: 200, image: 'items/drops/sword.jpg' }
-        ],
-        premium: [
-            { name: 'Золотой слиток', rarity: 'rare', value: 100, image: 'items/drops/gold.jpg' },
-            { name: 'Кристальный шар', rarity: 'epic', value: 300, image: 'items/drops/crystal.jpg' },
-            { name: 'Легендарный артефакт', rarity: 'legendary', value: 800, image: 'items/drops/artifact.jpg' }
-        ],
-        luxury: [
-            { name: 'Алмазный перстень', rarity: 'epic', value: 500, image: 'items/drops/ring.jpg' },
-            { name: 'Мифический дракон', rarity: 'mythic', value: 1500, image: 'items/drops/dragon.jpg' },
-            { name: 'Божественная реликвия', rarity: 'mythic', value: 5000, image: 'items/drops/relic.jpg' }
-        ]
-    };
-    
-    const caseItems = items[caseType] || items.free;
-    const wonItem = caseItems[Math.floor(Math.random() * caseItems.length)];
-    
-    // Обновление баланса
-    const price = CONFIG.CASE_PRICES[caseType];
-    currentUser.balance = currentUser.balance - price + wonItem.value;
-    
-    // Показать выигрыш
-    showWinModal(wonItem);
-    
-    // Обновить интерфейс
-    updateUserInterface();
-    updateInventory();
-}
-
-function showWinModal(item) {
-    document.getElementById('won-item-image').src = item.image;
-    document.getElementById('won-item-name').textContent = item.name;
-    document.getElementById('won-item-value').textContent = item.value;
-    
-    closeModal('case-modal');
-    showModal('win-modal');
-}
-
 function showModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.add('active');
+}
+function closeModal() {
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
 }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-}
-
-function getCaseName(caseType) {
-    const names = {
-        free: 'бесплатного кейса',
-        basic: 'базового кейса', 
-        premium: 'премиум кейса',
-        luxury: 'люкс кейса'
-    };
-    return names[caseType] || 'кейса';
-}
-
-// Функции кошелька
+// Подключение кошелька (заглушка)
 function connectWallet() {
-    // Интеграция с TonConnect будет здесь
-    alert('Функция подключения кошелька скоро будет доступна!');
+  alert('Wallet connect will be implemented here (TonConnect).');
 }
 
-function copyReferralLink() {
-    const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=ref_${currentUser.id}`;
+// Показываем modal пополнения (демо)
+function showDepositModal() {
+  const el = document.getElementById('deposit-address');
+  if (el) el.textContent = 'EQ...DEMOADDRESS';
+  showModal('deposit-modal');
+}
+
+// Копирование реферальной ссылки
+function copyReferral() {
+  try {
+    const link = https://t.me/fiatvalue_bot?start=ref_${currentUser.id};
     navigator.clipboard.writeText(link);
-    alert('Реферальная ссылка скопирована в буфер обмена!');
+    alert('Referral link copied!');
+  } catch (e) {
+    console.error('copyReferral', e);
+    prompt('Copy referral link:', `https://t.me/fiatvalue_bot?start=ref_${currentUser.id}`);
+  }
 }
 
-function selectAmount(amount) {
-    depositAmount = amount;
-    document.querySelectorAll('.deposit-option').forEach(opt => opt.classList.remove('selected'));
-    event.target.classList.add('selected');
+// Таймеры (free case и live-drops)
+function startTimers() {
+  updateLiveDrops();
+  setInterval(updateLiveDrops, 5000);
+  setInterval(updateFreeCaseTimer, 1000);
 }
 
-function copyAddress() {
-    navigator.clipboard.writeText(CONFIG.MERCHANT_WALLET);
-    alert('Адрес кошелька скопирован!');
+function updateFreeCaseTimer() {
+  // Демонстрационный таймер: покажем "Available now" если freeCaseNextAvailable в прошлом
+  const el = document.getElementById('free-timer');
+  if (!el) return;
+  const now = Date.now();
+  if (!freeCaseNextAvailable || now >= freeCaseNextAvailable) {
+    el.textContent = 'Available now';
+  } else {
+    const diff = Math.max(0, Math.floor((freeCaseNextAvailable - now) / 1000));
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    const s = diff % 60;
+    el.textContent = ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')};
+  }
 }
 
-function showHistory() {
-    alert('История выигрышей скоро будет доступна!');
+// Загрузка начальных данных
+function loadInitialData() {
+  updateLiveDrops();
+  loadLeaderboard();
+  loadInventory();
+  updateUI();
 }
 
-// Инициализация при загрузке
-initializeApp();
+// Загрузка топа
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(`${CONFIG.API_URL}/weekly-top`);
+    if (!res.ok) return;
+    const j = await res.json();const list = j.top || j;
+    const container = document.getElementById('leaderboard');
+    if (!container) return;
+    container.innerHTML = (list  []).map((u, i) => `<div class="leader-row"><div class="rank">${i+1}</div><div class="name">${escapeHtml(u.name  u.id)}</div><div class="spent">${Number(u.spent||0).toFixed(2)} TON</div></div>`).join('');
+  } catch (e) {
+    console.error('loadLeaderboard', e);
+  }
+}
+
+// Показ таба Top (global / friends)
+function showTop(kind = 'global') {
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.top-tab').forEach(t => {
+    if (t.dataset.kind === kind) t.classList.add('active');
+  });
+  // Для демо просто перезагрузим leaderboard — в реальной логике будет endpoint /weekly-top?kind=friends
+  loadLeaderboard();
+}
+
+// Загрузка инвентаря
+async function loadInventory() {
+  try {
+    const res = await fetch(`${CONFIG.API_URL}/inventory/${encodeURIComponent(currentUser.id)}`);
+    if (!res.ok) return;
+    const j = await res.json();
+    const items = j.inventory || j;
+    const container = document.getElementById('inventory');
+    if (!container) return;
+    container.innerHTML = (items || []).map(it => `
+      <div class="inventory-item ${escapeHtml(it.rarity || 'common')}">
+        <img src="${escapeHtml(it.image  it.img  'items/default-item.png')}" alt="${escapeHtml(it.name || '')}">
+        <div class="item-price">${Number(it.value  it.stars  0)}⭐️</div>
+        <div class="item-name">${escapeHtml(it.name || 'Item')}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    console.error('loadInventory', e);
+  }
+}
+
+// Вспомогательные функции
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
