@@ -1,262 +1,275 @@
-alert('После подписки нажмите Open. Для реальной проверки задайте BOT token в сервере.');
-  subscribed = true;
-});
+// server.js
+require('dotenv').config();
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const fetch = require('node-fetch'); // node-fetch v2
+const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
 
-btnOpenFree.addEventListener('click', async ()=> {
-  if (!subscribed) return alert('Please subscribe to @fiatvalue first.');
-  await openCase('free');
-});
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const TELEGRAM_CHANNEL_USERNAME = process.env.TELEGRAM_CHANNEL_USERNAME || '@fiatvalue';
+const TON_TO_STARS = Number(process.env.TON_TO_STARS || 1000);
 
-casesGrid.addEventListener('click', (e)=> {
-  const btn = e.target.closest('.btn-open-case');
-  if (!btn) return;
-  const card = btn.closest('.case');
-  const type = card.dataset.type;
-  const name = card.dataset.name;
-  activeCase = { type, name };
-  openModalForCase(activeCase);
-});
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'web')));
 
-function openModalForCase(c) {
-  modalTitle.innerText = c.name;
-  modalCarousel.innerHTML = '';
-  // create empty slots
-  for (let i=0;i<8;i++) {
-    const slot = document.createElement('div');
-    slot.className = 'slot';
-    slot.innerHTML = <img src="items/default-item.png" style="width:56px;height:56px;border-radius:8px">;
-    modalCarousel.appendChild(slot);
-  }
-  modal.classList.remove('hidden');
-  // slide animation with GSAP
-  if (window.gsap) {
-    gsap.fromTo('.modal-content', { scale:0.95, autoAlpha:0 }, { scale:1, autoAlpha:1, duration:0.3 });
-  }
-}
+// Ensure data dir and files exist
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const WEEKLY_FILE = path.join(DATA_DIR, 'weeklyTop.json');
 
-modalCloseBtn.addEventListener('click', ()=> modal.classList.add('hidden'));
-
-modalOpenBtn.addEventListener('click', async ()=> {
-  if (!activeCase) return;
-  await openCase(activeCase.type);
-  modal.classList.add('hidden');
-});
-
-async function openCase(type) {
+function readJSONSafe(filePath, fallback) {
   try {
-    const res = await fetch(`${API_ROOT}/api/case/${encodeURIComponent(type)}/${encodeURIComponent(TELEGRAM_USER_ID)}`, { method: 'POST' });
-    const j = await res.json();
-    if (!j.ok) {
-      if (j.error === 'free_cooldown') {
-        const next = new Date(j.nextAvailableAt);
-        return alert(`Free case already claimed. Next at ${next.toLocaleString()}`);
-      }
-      return alert('Open case failed: ' + (j.error || 'unknown'));
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, JSON.stringify(fallback, null, 2));
+      return fallback;
     }
-    const item = j.item;
-    // animate modal carousel to reveal item
-    revealItem(item);
-    await loadUser(); // refresh
-    resultArea.innerText = You got: ${item.name};
+    const raw = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(raw || '{}');
   } catch (e) {
-    console.error(e);
-    alert('Failed to open case (network).');
+    console.error('readJSONSafe error', e);
+    return fallback;
   }
 }
+function writeJSONSafe(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
 
-function revealItem(item) {
-  // simple GSAP reveal animation: highlight a random slot then show item moving to live-drop
-  const slots = modalCarousel.querySelectorAll('.slot');
-  const idx = Math.floor(Math.random()*slots.length);
-  const chosen = slots[idx];
-  chosen.innerHTML = <img src="${item.img || 'items/default-item.png'}" style="width:56px;height:56px;border-radius:8px">;
-  if (window.gsap) {
-    gsap.fromTo(chosen, { scale:0.6, rotation: -10 }, { scale:1, rotation:0, duration:0.6, ease:'back.out(1.7)' });
-    // fly to liveDropLine
-    const clone = chosen.cloneNode(true);
-    clone.style.position = 'absolute';
-    document.body.appendChild(clone);
-    const from = chosen.getBoundingClientRect();
-    const toTarget = liveDropLine;
-    const to = { x: toTarget.getBoundingClientRect().left + 20, y: toTarget.getBoundingClientRect().top + 10 };
-    clone.style.left = from.left + 'px';
-    clone.style.top = from.top + 'px';
-    clone.style.zIndex = 99;
-    gsap.to(clone, { x: to.x - from.left, y: to.y - from.top, scale:0.6, duration:0.9, onComplete: ()=> { 
-      const d = document.createElement('div'); d.className='drop-item'; d.innerHTML = chosen.innerHTML;
-      liveDropLine.appendChild(d);
-      if (liveDropLine.children.length > 20) liveDropLine.removeChild(liveDropLine.children[0]);
-      document.body.removeChild(clone);
-    }});
-  } else {
-    // fallback immediate add
-    const d = document.createElement('div'); d.className='drop-item'; d.innerHTML = <img src="${item.img || 'items/default-item.png'}" style="width:36px;height:36px;border-radius:6px"><div style="font-size:11px">${item.name}</div>;
-    liveDropLine.appendChild(d);
+let USERS = readJSONSafe(USERS_FILE, {}); // { userId: { id, name, balance, inventory:[], lastFreeClaim, weeklySpent, wallet } }
+let WEEKLY = readJSONSafe(WEEKLY_FILE, []);
+
+// Helpers
+function getUser(userId) {
+  if (!USERS[userId]) {
+    USERS[userId] = {
+      id: userId,
+      name: Guest_${userId},
+      balance: 0,
+      inventory: [],
+      lastFreeClaim: 0,
+      weeklySpent: 0,
+      wallet: null,
+      referral: null // will set when user connects wallet/referral
+    };
+    writeJSONSafe(USERS_FILE, USERS);
   }
+  return USERS[userId];
 }
 
-// wallet connect via TonConnect stub (replace with real TonConnect integration)
-document.getElementById('btn-connect-wallet').addEventListener('click', async ()=> {
-  if (window.TonConnectStub && window.TonConnectStub.isAvailable) {
-    try {
-      const r = await window.TonConnectStub.connect();// web/app.js
-const API_ROOT = '';
-
-const tg = window.Telegram?.WebApp;
-try { tg?.ready?.(); tg?.expand?.(); } catch(e){}
-
-let TELEGRAM_USER_ID = null;
-let TELEGRAM_NAME = 'Guest';
-let TELEGRAM_AVATAR = 'items/default-avatar.png';
-
-if (tg?.initDataUnsafe?.user) {
-  TELEGRAM_USER_ID = tg.initDataUnsafe.user.id?.toString() || local-${Date.now()};
-  TELEGRAM_NAME = tg.initDataUnsafe.user.first_name || 'Guest';
-  TELEGRAM_AVATAR = tg.initDataUnsafe.user.photo_url || TELEGRAM_AVATAR;
-} else {
-  TELEGRAM_USER_ID = localStorage.getItem('demo_user_id') || guest_${Math.floor(Math.random()*100000)};
-  localStorage.setItem('demo_user_id', TELEGRAM_USER_ID);
+function saveUsers() {
+  writeJSONSafe(USERS_FILE, USERS);
 }
 
-const profileNameEl = document.getElementById('profile-name');
-const profileAvatarEl = document.getElementById('profile-avatar');
-const balanceEl = document.getElementById('balance');
-const walletAddressEl = document.getElementById('wallet-address');
-const casesGrid = document.getElementById('casesGrid');
-const liveDropLine = document.getElementById('live-drop-line');
-const btnSubscribe = document.getElementById('btn-subscribe');
-const btnOpenFree = document.getElementById('btn-open-free');
-const modal = document.getElementById('case-modal');
-const modalTitle = document.getElementById('modal-case-name');
-const modalCarousel = document.getElementById('modal-carousel');
-const modalOpenBtn = document.getElementById('modal-open-btn');
-const modalCloseBtn = document.getElementById('modal-close-btn');
-const resultArea = document.getElementById('free-case-result');
-const weeklyContainer = document.getElementById('weekly-leaderboard');
-const inventoryGrid = document.getElementById('inventory-items');
+// Weighted random helper
+function weightedPick(items) {
+  const total = items.reduce((s, it) => s + (it.weight || 1), 0);
+  let r = Math.random() * total;
+  for (const it of items) {
+    r -= (it.weight || 1);
+    if (r <= 0) return it;
+  }
+  return items[items.length - 1];
+}
 
-profileNameEl.innerText = TELEGRAM_NAME;
-profileAvatarEl.src = TELEGRAM_AVATAR;
-
-let user = null;
-let subscribed = false;
-let activeCase = null;
-
-const CASES = [
-  { id: 'free', name: 'Free Daily', price: 0, img: 'items/free-case.jpg', type: 'free' },
-  { id: 'case_0_1', name: 'Bronze Case', price: 0.1, img: 'items/bronze-case.jpg', type: '0.1' },
-  { id: 'case_0_5', name: 'Silver Case', price: 0.5, img: 'items/silver-case.jpg', type: '0.5' }
+// Item sets (you can expand)
+const FREE_DAILY_ITEMS = [
+  { name: '+1 ⭐️', stars: 1, img: 'items/star1.jpg', weight: 50 },
+  { name: '+3 ⭐️', stars: 3, img: 'items/star3.jpg', weight: 30 },
+  { name: '+5 ⭐️', stars: 5, img: 'items/star5.jpg', weight: 15 },
+  { name: '🎁 Gift', stars: 12, img: 'items/gift.jpg', weight: 4 },
+  { name: '🎉 Big Gift', stars: 30, img: 'items/big_gift.jpg', weight: 1 }
 ];
 
-function renderCases() {
-  casesGrid.innerHTML = '';
-  CASES.forEach(c => {
-    const el = document.createElement('div');
-    el.className = 'case';
-    el.dataset.type = c.type;
-    el.dataset.name = c.name;
-    el.innerHTML = `<div class="badge">${c.price === 0 ? 'FREE' : c.price + ' TON'}</div>
-      <img class="case-preview" src="${c.img}" alt="${c.name}" />
-      <div class="case-footer"><span class="pill">${c.name}</span>
-      <button class="btn-open-case btn-ghost">Open</button></div>`;
-    casesGrid.appendChild(el);
-  });
-}
+const CASE_0_1_ITEMS = [
+  { name: 'Nothing', stars: 0, img: 'items/nothing.jpg', weight: 60 },
+  { name: '+0.001 TON (~1⭐)', ton: 0.001, stars: 1, img: 'items/ton_small.jpg', weight: 30 },
+  { name: '🧢 Durov Cap', stars: 5000, img: 'items/durov_cap.jpg', weight: 0.001 },
+  { name: '🐸 Pepe', stars: 10000, img: 'items/pepe.jpg', weight: 0.0001 }
+];
 
-async function loadUser() {
-  const id = TELEGRAM_USER_ID;
-  const res = await fetch(`${API_ROOT}/api/user/${encodeURIComponent(id)}`);
-  const j = await res.json();
-  if (j.ok) {
-    user = j.user;
-    profileNameEl.innerText = user.name || TELEGRAM_NAME;
-    profileAvatarEl.src = TELEGRAM_AVATAR || 'items/default-avatar.png';
-    balanceEl.innerText = (user.balance || 0).toFixed(2) + ' ⭐️';
-    document.getElementById('profile-balance') && (document.getElementById('profile-balance').innerText = (user.balance || 0).toFixed(2) + ' ⭐️');
-    walletAddressEl.innerText = user.wallet || '—';
-    renderInventory(user.inventory || []);
-    if (user.lastFreeClaim) showFreeCooldown(user.lastFreeClaim);
+const CASE_0_5_ITEMS = [
+  { name: '+0.05 TON', ton: 0.05, stars: 0.05 * TON_TO_STARS, img: 'items/ton_0_05.jpg', weight: 15 },
+  { name: '+0.4 TON', ton: 0.4, stars: 0.4 * TON_TO_STARS, img: 'items/ton_0_4.jpg', weight: 20 },
+  { name: '+0.77 TON', ton: 0.77, stars: 0.77 * TON_TO_STARS, img: 'items/ton_0_77.jpg', weight: 37 },
+  { name: 'Calendar Gift +1.43 TON', ton: 1.43, stars: 1.43 * TON_TO_STARS, img: 'items/calendar.jpg', weight: 8 },
+  { name: 'Lollipop +1.54 TON', ton: 1.54, stars: 1.54 * TON_TO_STARS, img: 'items/lollipop.jpg', weight: 7 },
+  { name: 'Hex Pot +3.12 TON', ton: 3.12, stars: 3.12 * TON_TO_STARS, img: 'items/hexpot.jpg', weight: 6 },
+  { name: 'Berry Box +4.05 TON', ton: 4.05, stars: 4.05 * TON_TO_STARS, img: 'items/berry.jpg', weight: 4 },
+  { name: 'Flower +5.13 TON', ton: 5.13, stars: 5.13 * TON_TO_STARS, img: 'items/flower.jpg', weight: 3 },
+  { name: 'Skull Ball +7.81 TON', ton: 7.81, stars: 7.81 * TON_TO_STARS, img: 'items/skull.jpg', weight: 0.5 },
+  { name: 'NFT Ring +18.15 TON', ton: 18.15, stars: 18.15 * TON_TO_STARS, img: 'items/ring.jpg', weight: 0.1 }
+];
+
+// API routes
+
+// Health
+app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+// Get user (create if missing)
+app.get('/api/user/:id', (req, res) => {
+  const id = req.params.id;
+  const user = getUser(id);
+  res.json({ ok: true, user });
+});
+
+// Top weekly
+app.get('/api/weekly-top', (req, res) => {
+  // compute from USERS weeklySpent
+  const top = Object.values(USERS)
+    .map(u => ({ id: u.id, name: u.name, spent: u.weeklySpent || 0 }))
+    .sort((a, b) => b.spent - a.spent)
+    .slice(0, 100);
+  res.json({ ok: true, top });
+});
+
+// Connect wallet
+app.post('/api/connect-wallet/:id', (req, res) => {
+  const id = req.params.id;
+  const { wallet } = req.body;
+  const user = getUser(id);
+  user.wallet = wallet || null;
+  saveUsers();
+  res.json({ ok: true, wallet: user.wallet });
+});
+
+// Disconnect wallet
+app.post('/api/disconnect-wallet/:id', (req, res) => {
+  const id = req.params.id;
+  const user = getUser(id);
+  delete user.wallet;
+  saveUsers();
+  res.json({ ok: true });
+});
+
+// Top-up (mock)
+app.post('/api/topup/:id', (req, res) => {
+  const id = req.params.id;
+  const { amount } = req.body; // amount in stars, or in TON if you prefer
+  const user = getUser(id);
+  const add = Number(amount) || 0;
+  user.balance = (user.balance || 0) + add;
+  user.weeklySpent = (user.weeklySpent || 0) + 0; // if top-up not counted as spent; adjust accordingly
+  saveUsers();
+  res.json({ ok: true, balance: user.balance });
+});
+
+// Check subscription to channel (requires TELEGRAM_BOT_TOKEN). If missing, return mock true.
+app.get('/api/check_sub/:id', async (req, res) => {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHANNEL_USERNAME) {
+    // In dev without token, we return true for convenience.
+    return res.json({ ok: true, subscribed: true, note: 'no bot token, returning mock true' });
   }
-}
+  try {
+    const userId = req.params.id;
+    // getChatMember: https://api.telegram.org/bot<token>/getChatMember?chat_id=@channel&user_id=<user>
+    const url = https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMember?chat_id=${encodeURIComponent(TELEGRAM_CHANNEL_USERNAME)}&user_id=${userId};
+    const r = await fetch(url);
+    const j = await r.json();
+    // according to API, result.status = "left"|"member"|"administrator" etc.
+    const status = j?.result?.status;
+    const subscribed = status && status !== 'left' && status !== 'kicked';
+    res.json({ ok: true, subscribed: !!subscribed, status: status || null });
+  } catch (e) {
+    console.error('check_sub error', e);
+    res.json({ ok: false, error: 'failed to check subscription' });
+  }
+});
 
-function renderInventory(items) {
-  if (!inventoryGrid) return;
-  inventoryGrid.innerHTML = '';
-  (items || []).slice().reverse().forEach(it => {
-    const el = document.createElement('div');
-    el.className = 'item';
-    el.title = it.name || it;
-    el.innerHTML = <div>${it.name || it}</div>;
-    inventoryGrid.appendChild(el);
-  });
-}
+// Open case endpoint (handles free, 0.1, 0.5)
+app.post('/api/case/:type/:id', (req, res) => {
+  const userId = req.params.id;
+  const type = req.params.type; // 'free' | '0.1' | '0.5'
+  const user = getUser(userId);
 
-function showFreeCooldown(ts) {
-  const next = new Date(ts + 24*60*60*1000);
-  const el = document.getElementById('daily-sub');
-  if (el) el.innerText = Next at ${next.toLocaleString()};
-}
-
-btnSubscribe.addEventListener('click', ()=> {
-  if (tg?.openLink) tg.openLink('https://t.me/fiatvalue');
-  else window.open('https://t.me/fiatvalue', '_blank');const wallet = r.account  r.address  r;
-      await fetch(`${API_ROOT}/api/connect-wallet/${encodeURIComponent(TELEGRAM_USER_ID)}`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ wallet }) });
-      await loadUser();
-      alert('Wallet connected: ' + wallet);
-    } catch (e) {
-      console.error(e);
-      alert('Wallet connect failed');
+  try {
+    if (type === 'free') {
+      // cooldown 24h
+      const now = Date.now();
+      const DAY = 24 * 60 * 60 * 1000;
+      if (user.lastFreeClaim && (now - user.lastFreeClaim) < DAY) {
+        return res.json({ ok: false, error: 'free_cooldown', nextAvailableAt: user.lastFreeClaim + DAY });
+      }
+      const item = weightedPick(FREE_DAILY_ITEMS);
+      user.balance = (user.balance  0) + (item.stars  0);
+      user.inventory.push({ id: uuidv4(), name: item.name, img: item.img, obtainedAt: now });
+      user.lastFreeClaim = now;
+      saveUsers();
+      return res.json({ ok: true, item, balance: user.balance });
     }
-  } else alert('TonConnect not available');
-});
 
-document.getElementById('btn-disconnect-wallet').addEventListener('click', async ()=> {
-  await fetch(`${API_ROOT}/api/disconnect-wallet/${encodeURIComponent(TELEGRAM_USER_ID)}`, { method:'POST' });
-  await loadUser();
-  alert('Wallet disconnected');
-});
+    if (type === '0.1') {
+      const costTON = 0.1;
+      // In real app you'll charge TON via blockchain; here we simulate using stars cost conversion
+      // For demo, require user to have enough stars to "buy" or allow purchase via topup
+      // We'll just simulate drop: pick item; update balance if item contains stars/ton
+      const item = weightedPick(CASE_0_1_ITEMS);
+      if (item.ton) {
+        user.balance += (item.ton * TON_TO_STARS);
+      } else {
+        user.balance += (item.stars || 0);
+      }
+      user.inventory.push({ id: uuidv4(), name: item.name, img: item.img, obtainedAt: Date.now() });
+      user.weeklySpent = (user.weeklySpent || 0) + costTON;
+      saveUsers();
+      return res.json({ ok: true, item, balance: user.balance });
+    }
 
-async function loadWeeklyTop(){
-  const res = await fetch(`${API_ROOT}/api/weekly-top`);
-  const j = await res.json();
-  if (j.ok) {
-    const container = document.getElementById('weekly-leaderboard');
-    container.innerHTML = '';
-    j.top.forEach((u, idx)=> {
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = <div>${idx+1}. ${u.name}</div><div style="font-weight:700">${(u.spent||0).toFixed(2)} TON</div>;
-      container.appendChild(row);
-    });
+    if (type === '0.5') {
+      const costTON = 0.5;
+      const item = weightedPick(CASE_0_5_ITEMS);
+      if (item.ton) {
+        user.balance += (item.ton * TON_TO_STARS);
+      } else {
+        user.balance += (item.stars || 0);
+      }
+      user.inventory.push({ id: uuidv4(), name: item.name, img: item.img, obtainedAt: Date.now() });
+      user.weeklySpent = (user.weeklySpent || 0) + costTON;
+      saveUsers();
+      return res.json({ ok: true, item, balance: user.balance });
+    }
+
+    return res.json({ ok: false, error: 'unknown_case_type' });
+  } catch (e) {
+    console.error('open case error', e);
+    return res.status(500).json({ ok: false, error: 'server_error' });
   }
-}
+});
 
-// nav
-document.getElementById('nav-main').addEventListener('click', ()=> switchPage('main'));
-document.getElementById('nav-weekly').addEventListener('click', ()=> switchPage('weekly'));
-document.getElementById('nav-profile-btn').addEventListener('click', ()=> switchPage('profile'));
-function switchPage(p) {
-  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active-page'));
-  document.getElementById('page-' + p).classList.add('active-page');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('nav-' + p).classList.add('active');
-}
+// Get inventory
+app.get('/api/inventory/:id', (req, res) => {
+  const id = req.params.id;
+  const user = getUser(id);
+  res.json({ ok: true, inventory: user.inventory || [] });
+});
 
-// demo live drop filler
-setInterval(()=>{
-  const sample = ['+1 ⭐️','+3 ⭐️','+5 ⭐️','🎁 Gift'];
-  const name = sample[Math.floor(Math.random()*sample.length)];
-  const el = document.createElement('div');
-  el.className = 'drop-item';
-  el.textContent = name;
-  liveDropLine.appendChild(el);
-  if (liveDropLine.children.length > 20) liveDropLine.removeChild(liveDropLine.children[0]);
-}, 4000);
+// Simple endpoint for top-100 (spent)
+app.get('/api/top100', (req, res) => {
+  const top = Object.values(USERS)
+    .map(u => ({ id: u.id, name: u.name, spent: u.weeklySpent || 0 }))
+    .sort((a, b) => b.spent - a.spent)
+    .slice(0, 100);
+  res.json({ ok: true, top });
+});
 
-// init
-async function init(){
-  renderCases();
-  await loadUser();
-  await loadWeeklyTop();
-}
-init();
+// reset weekly (admin) - simple endpoint for demo
+app.post('/api/reset-weekly', (req, res) => {
+  Object.values(USERS).forEach(u => { u.weeklySpent = 0; });
+  saveUsers();
+  res.json({ ok: true });
+});
+
+// Serve static (already configured above)
+app.get('*', (req, res) => {
+  // serve index.html for unmatched routes (SPA)
+  res.sendFile(path.join(__dirname, 'web', 'index.html'));
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`FiatValue WebApp server listening on http://localhost:${PORT}`);
+});
