@@ -1,73 +1,32 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const fs = require('fs').promises;
 
-const userSchema = new mongoose.Schema({
-    telegramId: {
-        type: Number,
-        required: true,
-        unique: true
-    },
-    firstName: {
-        type: String,
-        required: true
-    },
-    lastName: String,
-    username: String,
-    photoUrl: String,
-    balance: {
-        type: Number,
-        default: 0
-    },
-    walletAddress: String,
-    invitedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    invitedCount: {
-        type: Number,
-        default: 0
-    },
-    earnedFromRefs: {
-        type: Number,
-        default: 0
-    },
-    lastFreeCase: Date,
-    inventory: [{
-        itemId: String,
-        name: String,
-        image: String,
-        rarity: String,
-        value: Number,
-        acquiredAt: {
-            type: Date,
-            default: Date.now
-        }
-    }],
-    openHistory: [{
-        caseType: String,
-        itemName: String,
-        itemRarity: String,
-        itemValue: Number,
-        timestamp: {
-            type: Date,
-            default: Date.now
-        }
-    }],
-    createdAt: {
-        type: Date,
-        default: Date.now
+router.get('/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const userData = await getUserData(userId);
+        
+        res.json({
+            success: true,
+            user: {
+                balance: userData.balance,
+                inventory: userData.inventory,
+                lastFreeCase: userData.lastFreeCase
+            }
+        });
+    } catch (error) {
+        res.json({ success: false, error: 'User not found' });
     }
 });
 
-// Статистика по пользователю
-userSchema.virtual('totalSpent').get(function() {
-    return this.openHistory.reduce((total, open) => {
-        const prices = { free: 0, basic: 10, premium: 50, luxury: 100 };
-        return total + prices[open.caseType];
-    }, 0);
-});
+async function getUserData(userId) {
+    try {
+        const data = await fs.readFile(`./data/users/${userId}.json`, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        return { balance: 1000, inventory: [], lastFreeCase: null };
+    }
+}
 
-userSchema.virtual('totalWon').get(function() {
-    return this.openHistory.reduce((total, open) => total + open.itemValue, 0);
-});
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = router;

@@ -2,200 +2,107 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FiatValue NFT Cases</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiatValue Cases</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Верхняя панель -->
-        <header class="header">
-            <div class="user-info">
-                <img id="user-avatar" src="icons/default-avatar.jpg" alt="Avatar" class="avatar">
-                <span id="user-name">Player</span>
-            </div>
-            <div class="balance-section">
-                <div class="balance">0</div>
-                <div class="currency">⭐</div>
-                <button class="btn-topup" onclick="showDepositModal()">+</button>
-            </div>
-        </header>
-
-        <!-- Live Drop лента -->
-        <div class="live-drop-section">
-            <div class="live-drop-container" id="live-drops">
-                <!-- Динамически заполняется -->
-            </div>
+    <!-- Верхняя панель -->
+    <header class="header">
+        <div class="user-info">
+            <img id="user-avatar" src="" alt="Avatar" class="avatar">
+            <span id="user-name">User</span>
         </div>
+        <div class="balance-info">
+            <span id="user-balance">0.00</span>
+            <button id="deposit-btn">+</button>
+        </div>
+    </header>
 
-        <!-- Основной контент -->
-        <main class="main-content">
-            <!-- Страница кейсов -->
-            <section id="main-page" class="page active">
-                <h2 class="page-title">NFT Cases</h2>
-                <div class="cases-grid">
-                    <div class="case-card" data-case="free" onclick="openCaseModal('free')">
-                        <div class="case-badge free">FREE</div>
-                        <img src="items/cases/free-case.jpg" alt="Free Case" class="case-image">
-                        <div class="case-info">
-                            <h3>Daily Free</h3>
-                            <div class="case-timer" id="free-timer">Available now</div>
-                        </div>
-                    </div>
-
-                    <div class="case-card" data-case="basic" onclick="openCaseModal('basic')">
-                        <div class="case-badge basic">0.1 TON</div>
-                        <img src="items/cases/basic-case.jpg" alt="Basic Case" class="case-image">
-                        <div class="case-info">
-                            <h3>Basic Case</h3>
-                            <div class="case-price">18 ⭐</div>
-                        </div>
-                    </div>
-
-                    <div class="case-card" data-case="premium" onclick="openCaseModal('premium')">
-                        <div class="case-badge premium">0.5 TON</div>
-                        <img src="items/cases/premium-case.jpg" alt="Premium Case" class="case-image">
-                        <div class="case-info">
-                            <h3>Premium Case</h3>
-                            <div class="case-price">88 ⭐</div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Контейнер для страниц SPA -->
+    <main class="main-content">
+        <!-- Главная страница -->
+        <div id="page-main" class="page active">
+            <!-- Live-drop лента -->
+            <section class="live-drop">
+                <h2>Live Drop</h2>
+                <div id="live-drop-list" class="live-drop-list"></div>
             </section>
 
-            <!-- Страница топа -->
-            <section id="weekly-page" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Weekly Leaderboard</h2>
-                    <div class="top-tabs">
-                        <button class="top-tab active" onclick="showTop('global')">Global Top</button>
-                        <button class="top-tab" onclick="showTop('friends')">Friends Top</button>
-                    </div>
+            <!-- Секция с кейсами -->
+            <section class="cases-grid">
+                <div class="case" data-type="free">
+                    <img src="items/free_case.jpg" alt="Free Case">
+                    <p>Free Daily</p>
+                    <div class="case-timer" id="free-timer">24h</div>
                 </div>
-                <div class="leaderboard" id="leaderboard">
-                    <!-- Динамически заполняется -->
+                
+                <div class="case" data-type="0.1">
+                    <img src="items/0.1_case.png" alt="0.1 TON Case">
+                    <p>0.1 TON</p>
+                    <div class="case-odds">Jackpot: 0.1%</div>
                 </div>
-            </section>
-
-            <!-- Страница профиля -->
-            <section id="profile-page" class="page">
-                <div class="profile-header">
-                    <img id="profile-avatar" src="icons/default-avatar.jpg" alt="Avatar" class="profile-avatar">
-                    <h2 id="profile-name">Player</h2>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <span>Balance</span>
-                            <strong id="profile-balance">0</strong> ⭐
-                        </div>
-                        <button class="btn-deposit" onclick="showDepositModal()">Deposit</button>
-                    </div>
+                
+                <div class="case" data-type="0.5">
+                    <img src="items/0.5_case.png" alt="0.5 TON Case">
+                    <p>0.5 TON</p>
+                    <div class="case-odds">Balance Drops</div>
                 </div>
-
-                <div class="profile-sections">
-                    <div class="profile-section wallet-section">
-                        <h3>TON Wallet</h3>
-                        <div class="wallet-info">
-                            <span id="wallet-address">Not connected</span>
-                            <button class="btn-connect" onclick="connectWallet()">Connect</button>
-                        </div>
-                    </div>
-
-                    <div class="profile-section referral-section">
-                        <h3>Referral Program</h3>
-                        <p>Invite friends and get 5% from their deposits!</p>
-                        <div class="referral-stats">
-                            <div class="stat">
-                                <span>Invited</span>
-                                <strong id="invited-count">0</strong>
-                            </div>
-                            <div class="stat">
-                                <span>Earned</span>
-                                <strong id="earned-amount">0</strong> ⭐
-                            </div>
-                        </div>
-                        <button class="btn-referral" onclick="copyReferral()">Copy Referral Link</button>
-                    </div>
-
-                    <div class="profile-section inventory-section">
-                        <h3>Inventory</h3>
-                        <div class="inventory-grid" id="inventory">
-                            <!-- Динамически заполняется -->
-                        </div>
-                    </div>
+                
+                <div class="case" data-type="1">
+                    <img src="items/1_case.png" alt="1 TON Case">
+                    <p>1 TON</p>
+                    <div class="case-odds">Premium</div>
+                </div>
+                
+                <div class="case" data-type="1.5">
+                    <img src="items/1.5_case.png" alt="1.5 TON Case">
+                    <p>1.5 TON</p>
+                    <div class="case-odds">Epic</div>
                 </div>
             </section>
-        </main>
+        </div>
 
-        <!-- Нижняя навигация -->
-        <nav class="bottom-nav">
-            <button class="nav-btn active" data-page="main">
-                <span class="nav-icon">🎁</span>
-                <span>Main</span>
-            </button>
-            <button class="nav-btn" data-page="weekly">
-                <span class="nav-icon">🏆</span>
-                <span>Weekly</span>
-            </button>
-            <button class="nav-btn" data-page="profile">
-                <span class="nav-icon">👤</span>
-                <span>Profile</span>
-            </button>
-        </nav>
-    </div>
-
-    <!-- Модальные окна -->
-    <div id="case-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Open Case</h3>
-                <button class="btn-close" onclick="closeModal()">×</button>
-            </div>
-            <div class="case-preview">
-                <img id="modal-case-image" src="" alt="Case" class="case-image-large">
-                <div class="case-items-preview" id="case-items">
-                    <!-- Превью предметов -->
+        <!-- Страница профиля -->
+        <div id="page-profile" class="page">
+            <div class="profile-header">
+                <img id="profile-avatar" src="" alt="Avatar" class="profile-avatar">
+                <div class="profile-info">
+                    <h2 id="profile-name">User</h2>
+                    <div class="profile-balance">
+                        <span id="profile-balance">0.00</span>
+                        <span class="balance-star">⭐</span>
+                    </div>
                 </div>
             </div>
-            <button class="btn-open" id="btn-open-case">OPEN FOR <span id="modal-price">0</span> ⭐</button>
-        </div>
-    </div>
-
-    <div id="deposit-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Deposit TON</h3>
-                <button class="btn-close" onclick="closeModal()">×</button>
+            
+            <button id="connect-wallet" class="wallet-btn">Connect Wallet</button>
+            
+            <div class="wallet-info">
+                <span id="wallet-address">Not connected</span>
             </div>
-            <div class="deposit-options">
-                <div class="deposit-option" onclick="selectAmount(10)">10 ⭐</div>
-                <div class="deposit-option" onclick="selectAmount(50)">50 ⭐</div>
-                <div class="deposit-option" onclick="selectAmount(100)">100 ⭐</div>
-                <div class="deposit-option" onclick="selectAmount(500)">500 ⭐</div>
+            
+            <div class="referral-section">
+                <h3>Referral Link</h3>
+                <div class="referral-link">
+                    <input type="text" id="ref-link" readonly>
+                    <button onclick="copyRefLink()">Copy</button>
+                </div>
             </div>
-            <div class="wallet-address">
-                <p>Send TON to:</p>
-                <code id="deposit-address">EQ...</code>
-                <button onclick="copyAddress()">Copy</button>
+            
+            <div class="inventory-section">
+                <h3>Inventory</h3>
+                <div id="inventory-list" class="inventory-list"></div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div id="win-modal" class="modal">
-        <div class="modal-content win-modal">
-            <div class="win-animation">
-                <div class="confetti"></div>
-                <img id="won-item-image" src="" alt="Won Item" class="won-item">
-                <h3>Congratulations!</h3>
-                <p>You won:</p>
-                <div class="won-item-name" id="won-item-name"></div>
-                <div class="won-item-value">+<span id="won-item-value">0</span> ⭐</div>
-            </div>
-            <button class="btn-claim" onclick="closeModal()">Claim</button>
-        </div>
-    </div>
+    <!-- Нижняя навигация -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-page="page-main">🎁 Main</button>
+        <button class="nav-btn" data-page="page-weekly">📊 Weekly</button>
+        <button class="nav-btn" data-page="page-profile">👤 Profile</button>
+    </nav>
 
-    <script src="app.js"></script>
-</body>
-</html>
+    <!-- Модальное окно для открытия кейса -->

@@ -1,56 +1,33 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const { caseLimiter, depositLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../web')));
 
-// Статические файлы
-app.use(express.static(path.join(__dirname, 'public')));
+// Routes
+app.use('/api/case', caseLimiter, require('./routes/case'));
+app.use('/api/user', require('./routes/user'));
+app.use('/api/deposit', depositLimiter, require('./routes/deposit'));
 
-// Подключение к MongoDB
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb://localhost:27017/fiatvalue',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }
-);
-
-mongoose.connection.on('connected', () => {
-  console.log('✅ Connected to MongoDB');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err);
-});
-
-// Маршруты
-try {
-  app.use('/api/auth', require('./routes/auth'));
-  app.use('/api/payments', require('./routes/payments'));
-  app.use('/api/cases', require('./routes/cases'));
-} catch (e) {
-  console.error('⚠️ Ошибка подключения маршрутов:', e);
-}
-
-// Главная страница
+// Serve frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../web/index.html'));
 });
 
-// Для Vercel экспортируем приложение без app.listen()
-module.exports = app;
+// Health check
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
-// ✅ Если запускаешь локально — включаем порт:
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+module.exports = app;
